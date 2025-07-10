@@ -29,6 +29,8 @@ DEBUG = config("DEBUG", default=False, cast=bool)
 ALLOWED_HOSTS = []
 
 
+AUTH_USER_MODEL = 'accounts.User'
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -44,6 +46,7 @@ INSTALLED_APPS = [
     'apps.artists',
     'apps.tags',
     'apps.ai_integration',
+    'apps.interactions',
 
     'rest_framework',
     'corsheaders',
@@ -88,7 +91,7 @@ WSGI_APPLICATION = "config.wsgi.application"
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'hart_dev_db',         
+        'NAME': 'hart_db',         
         'USER': 'admin',               
         'PASSWORD': 'admin123',        
         'HOST': 'localhost',           
