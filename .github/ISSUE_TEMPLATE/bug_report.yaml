@@ -1,0 +1,49 @@
+name: 🐛 Bug Report
+description: 버그 또는 예상과 다른 동작 보고
+title: "[Bug] "
+labels: [bug, needs-triage]
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: 발생한 문제
+      description: 어떤 문제가 발생했는지 자세히 적어주세요.
+      placeholder: 예: 로그인 시 500 에러 발생
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: 기대한 동작
+      placeholder: 예: 정상 로그인 후 토큰 반환
+    validations:
+      required: false
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: 재현 방법
+      description: 가능한 경우, 문제를 재현할 수 있는 절차를 알려주세요.
+      placeholder: |
+        1. 로그인 페이지로 이동
+        2. 이메일/비밀번호 입력
+        3. 로그인 버튼 클릭
+    validations:
+      required: false
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: 에러 로그/스크린샷
+      placeholder: traceback이나 콘솔 출력 등
+
+  - type: dropdown
+    id: related-area
+    attributes:
+      label: 관련 영역
+      options:
+        - Backend (Django)
+        - Frontend (Next.js)
+        - Both
+        - Unknown

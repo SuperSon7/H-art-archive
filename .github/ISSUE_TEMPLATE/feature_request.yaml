@@ -1,0 +1,54 @@
+name: 🚀 Feature Request
+description: 새로운 기능 개발 또는 기존 기능 개선 요청
+title: "[Feature] "
+labels: [feature, needs-triage]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## ✅ 기능 설명
+
+  - type: textarea
+    id: description
+    attributes:
+      label: 기능 설명
+      description: 어떤 기능인지, 왜 필요한지 간단히 설명해주세요.
+      placeholder: 예: 작가가 프로필을 생성하고 수정할 수 있도록 API 및 UI를 개발합니다.
+    validations:
+      required: true
+
+  - type: textarea
+    id: tasks
+    attributes:
+      label: 세부 작업(Task 목록)
+      description: 구현을 위해 필요한 세부 작업을 작성해주세요.
+      placeholder: |
+        - [ ] Artist 모델 수정
+        - [ ] 프로필 생성/수정 API 개발
+        - [ ] 프론트엔드 폼 구현
+    validations:
+      required: false
+
+  - type: input
+    id: endpoint
+    attributes:
+      label: 관련 API Endpoint (있다면)
+      placeholder: 예: POST /api/v1/artists/profile/
+
+  - type: dropdown
+    id: frontend_backend
+    attributes:
+      label: 관련 영역
+      options:
+        - Backend (Django)
+        - Frontend (Next.js)
+        - Both
+        - Infra/DevOps
+    validations:
+      required: true
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: 기타 참고사항
+      placeholder: 예: Figma 링크, 참조할 API 문서 등
