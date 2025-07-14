@@ -19,19 +19,24 @@ class UserManager(BaseUserManager):
     def create_superuser(self, email, username, password=None, **extra_fields):
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
+        extra_fields.setdefault("is_approved", True)
         return self.create_user(email, username, password, **extra_fields)
 
 class User(AbstractBaseUser, PermissionsMixin):
     class UserType(models.TextChoices):
         ARTIST = 'ARTIST', '작가'
-        COLLECTOR = "COLLECTOR", '컬렉터'
+        COLLECTOR = 'COLLECTOR', '컬렉터'
+    
+    
         
     email = models.EmailField(unique=True)
     username = models.CharField(max_length=150)
     user_type = models.CharField(max_length=20, choices=UserType.choices, default=UserType.COLLECTOR)
     
+    is_approved = models.BooleanField(default=False) # 작가만 해당
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
+    
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
