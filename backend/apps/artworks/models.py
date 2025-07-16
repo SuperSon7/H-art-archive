@@ -2,8 +2,11 @@ from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from parler.models import TranslatableModel, TranslatedFields
 from apps.artists.models import Artist
-from apps.tags.models import Tag
+
 from django.utils import timezone
+
+def get_current_year():
+    return timezone.now().year
 
 class Artwork(TranslatableModel):
     translation = TranslatedFields(
@@ -11,15 +14,15 @@ class Artwork(TranslatableModel):
         description = models.TextField(blank=True, verbose_name="작품 설명", help_text="작품에 대한 상세 설명")
     )
 
-    artist = models.ForeignKey(Artist, on_delete=models.CASCADE, related_name='artwork',verbose_name="작가")
+    artist = models.ForeignKey(Artist, on_delete=models.CASCADE, related_name='artworks',verbose_name="작가")
     
-    tags = models.ManyToManyField(Tag, blank=True, related_name='artwork', verbose_name="해시태그")
+    # tags = models.ManyToManyField(Tag, blank=True, related_name='artworks', verbose_name="해시태그")
     
     year_created = models.IntegerField(
         validators=[
             MinValueValidator(1900),
             MaxValueValidator(
-                limit_value=lambda: timezone.now().year, 
+                limit_value=get_current_year,
                 message="제작 연도는 현재 연도보다 클 수 없습니다.")
             ],
         verbose_name="제작년도",
@@ -86,8 +89,6 @@ class Artwork(TranslatableModel):
         ('digital', '디지털아트'),
         ('mixed_media', '혼합매체'),
     ]
-    
-    status = models.Choices('FOR_SALE','SOLD','PENDING')
     
     category = models.CharField(
         max_length=20,
@@ -236,3 +237,9 @@ class ArtworkImage(models.Model):
 
     def __str__(self):
         return f"{self.artwork.safe_translation_getter('title', any_language=True)} - Image {self.order}"
+    
+    def get_inquiries(self):
+        return self.purchase_inquiries.select_related('inquirer')
+
+    def has_pending_inquiries(self):
+        return self.purchase_inquiries.filter(status='pending').exists()

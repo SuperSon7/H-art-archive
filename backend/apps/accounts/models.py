@@ -47,3 +47,27 @@ class User(AbstractBaseUser, PermissionsMixin):
     
     def __str__(self):
         return f"[{self.user_type}] {self.username or self.email}"
+    
+    def get_following_list(self):
+        return self.following.select_related('following')
+    
+    def get_following_count(self):
+        return self.following.count()
+    
+    def is_following(self, artist):
+        return self.following.filter(following=artist).exists()
+    
+    def get_wishlist(self):
+        return self.wishlist.select_related('artwork')
+
+    def get_wishlist_count(self):
+        return self.wishlist.count()
+    
+    def get_unread_notifications(self):
+        return self.notifications.filter(is_read=False)
+
+    def get_unread_count(self):
+        return self.notifications.filter(is_read=False).count()
+
+    def mark_all_notifications_read(self):
+        self.notifications.filter(is_read=False).update(is_read=True)

@@ -44,7 +44,6 @@ INSTALLED_APPS = [
     'apps.accounts',
     'apps.artworks',
     'apps.artists',
-    'apps.tags',
     'apps.ai_integration',
     'apps.interactions',
 
