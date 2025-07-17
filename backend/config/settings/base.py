@@ -44,12 +44,13 @@ INSTALLED_APPS = [
     'apps.accounts',
     'apps.artworks',
     'apps.artists',
-    'apps.tags',
     'apps.ai_integration',
     'apps.interactions',
 
     'rest_framework',
+    'drf_spectacular',
     'corsheaders',
+    'parler',
 ]
 
 MIDDLEWARE = [
@@ -122,7 +123,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-LANGUAGE_CODE = "en-us"
+LANGUAGE_CODE = "ko"
 
 TIME_ZONE = "UTC"
 
@@ -130,6 +131,17 @@ USE_I18N = True
 
 USE_TZ = True
 
+# Parler를 위한 언어 설정
+PARLER_LANGUAGES = {
+    None: (
+        {'code': 'ko',}, # 한국어
+        {'code': 'en',}, # 영어
+    ),
+    'default': {
+        'fallback': 'ko',  # 번역이 없을 경우, 한국어를 기본으로 보여줌
+        'hide_untranslated': False, # 번역이 없어도 내용을 보여줄지 여부
+    }
+}
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
@@ -145,4 +157,12 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 REST_FRAMEWORK = {
     'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.URLPathVersioning',
     'DEFAULT_VERSION': 'v1',
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'H-ART API 문서',
+    'DESCRIPTION': '홍익대학교 졸업 작품 아카이빙 플랫폼',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,  
 }
