@@ -166,3 +166,18 @@ SPECTACULAR_SETTINGS = {
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,  
 }
+
+# Email Verification Config
+EMAIL_VERIFICATION_TOKEN_EXPIRE_MINUTES = 30
+JWT_ALGORITHM = 'HS256'
+
+FRONTEND_VERIFY_URL = 'http://localhost:3000/verify-email'  # 프론트엔드 URL
+
+# Email Config
+DEFAULT_FROM_EMAIL = 'noreply@artplatform.com'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'your-email@gmail.com'
+EMAIL_HOST_PASSWORD = 'your-app-password'
