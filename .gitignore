@@ -113,3 +113,6 @@ coverage/
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+
+# DB
+.postgre_data/

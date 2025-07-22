@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+
 from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -92,11 +93,11 @@ WSGI_APPLICATION = "config.wsgi.application"
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'hart_db',         
-        'USER': 'admin',               
-        'PASSWORD': 'admin123',        
-        'HOST': 'localhost',           
-        'PORT': '5432',                
+        'NAME': config('DB_NAME'),         
+        'USER': config('DB_USER'),               
+        'PASSWORD': config('DB_PASSWORD'),        
+        'HOST': config('DB_HOST'),           
+        'PORT': config('DB_PORT'),                
     }
 }
 
@@ -166,3 +167,35 @@ SPECTACULAR_SETTINGS = {
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,  
 }
+
+# Email Verification Config
+EMAIL_VERIFICATION_TOKEN_EXPIRE_MINUTES = 30
+JWT_ALGORITHM = 'HS256'
+
+FRONTEND_VERIFY_URL = 'http://localhost:3000/verify-email'  # 프론트엔드 URL
+
+# Email Config
+DEFAULT_FROM_EMAIL = 'noreply@artplatform.com'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'your-email@gmail.com'
+EMAIL_HOST_PASSWORD = 'your-app-password'
+
+#Redis 설정
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://127.0.0.1:6379/1',
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        }
+    }
+}
+
+# Redis를 세션 엔진으로도 사용 (선택)
+# SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+# SESSION_CACHE_ALIAS = 'default'
+
+CELERY_BROKER_URL = "redis://127.0.0.1:6379/0"
