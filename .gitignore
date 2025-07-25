@@ -55,6 +55,7 @@ instance/
 # 민감한 환경변수 파일 (프로젝트별 경로 지정)
 # 각 프로젝트 폴더 내의 .env 파일을 정확히 지정하여 무시합니다.
 /backend/.env
+/backend/.env.test
 /ai/.env
 
 # 파이썬 패키지 및 배포 관련

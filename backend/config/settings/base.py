@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
+from dotenv import load_dotenv
 
 from decouple import config
 
@@ -22,10 +24,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = config("SECRET_KEY")
+SECRET_KEY = os.environ.get("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config("DEBUG", default=False, cast=bool)
+DEBUG = os.environ.get("DEBUG", "False") == "True"
 
 ALLOWED_HOSTS = []
 
@@ -93,11 +95,11 @@ WSGI_APPLICATION = "config.wsgi.application"
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('DB_NAME'),         
-        'USER': config('DB_USER'),               
-        'PASSWORD': config('DB_PASSWORD'),        
-        'HOST': config('DB_HOST'),           
-        'PORT': config('DB_PORT'),                
+        'NAME': os.environ.get('DB_NAME'),         
+        'USER': os.environ.get('DB_USER'),               
+        'PASSWORD': os.environ.get('DB_PASSWORD'),        
+        'HOST': os.environ.get('DB_HOST'),           
+        'PORT': os.environ.get('DB_PORT', '5432'),         
     }
 }
 
@@ -169,25 +171,27 @@ SPECTACULAR_SETTINGS = {
 }
 
 # Email Verification Config
-EMAIL_VERIFICATION_TOKEN_EXPIRE_MINUTES = 30
-JWT_ALGORITHM = 'HS256'
+EMAIL_VERIFICATION_TOKEN_EXPIRE_MINUTES = int(os.environ.get("EMAIL_VERIFICATION_TOKEN_EXPIRE_MINUTES", 30))
+JWT_ALGORITHM = os.environ.get("JWT_ALGORITHM", "HS256")
 
-FRONTEND_VERIFY_URL = 'http://localhost:3000/verify-email'  # 프론트엔드 URL
+FRONTEND_VERIFY_URL = os.environ.get("FRONTEND_VERIFY_URL", "http://localhost:3000/verify-email")
 
 # Email Config
-DEFAULT_FROM_EMAIL = 'noreply@artplatform.com'
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'your-email@gmail.com'
-EMAIL_HOST_PASSWORD = 'your-app-password'
+EMAIL_BACKEND = os.environ.get("EMAIL_BACKEND", "django.core.mail.backends.smtp.EmailBackend")
+EMAIL_HOST = os.environ.get("EMAIL_HOST", "smtp.gmail.com")
+EMAIL_PORT = int(os.environ.get("EMAIL_PORT", 587))
+EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS", "True") == "True"
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
+DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", "noreply@artplatform.com")
 
 #Redis 설정
+REDIS_CACHE_URL = os.environ.get("REDIS_CACHE_URL", "redis://127.0.0.1:6379/1")
+
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': 'redis://127.0.0.1:6379/1',
+        'LOCATION': REDIS_CACHE_URL,
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
         }
@@ -198,4 +202,4 @@ CACHES = {
 # SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 # SESSION_CACHE_ALIAS = 'default'
 
-CELERY_BROKER_URL = "redis://127.0.0.1:6379/0"
+CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL", "redis://127.0.0.1:6379/0")

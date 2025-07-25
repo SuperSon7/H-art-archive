@@ -4,14 +4,15 @@ from .token import decode_email_verification_token
 User = get_user_model()
 
 class SignUpSerializer(serializers.Serializer):
-    id = serializers.CharField(max_length=150)
+
     username = serializers.CharField(max_length=150)
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True, min_length=8)
     password_confirm = serializers.CharField(write_only=True, min_length=8)
-    agree_terms = serializers.BooleanField()
-    agree_privacy = serializers.BooleanField()
-
+    # agree_terms = serializers.BooleanField()
+    # agree_privacy = serializers.BooleanField()
+    user_type = serializers.ChoiceField(choices=['artist', 'collector'])
+    
     def validate_email(self, val):
         if User.objects.filter(email=val).exists():
             raise serializers.ValidationError("이미 존재하는 이메일입니다.")

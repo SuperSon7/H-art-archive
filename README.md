@@ -109,3 +109,102 @@ POST /v1/ai/auto-tag/                # AI 자동 태깅
 ---
 
 **Made by the __ Team**
+```
+H-art-archive
+├─ ai
+├─ backend
+│  ├─ .dockerignore
+│  ├─ apps
+│  │  ├─ accounts
+│  │  │  ├─ admin.py
+│  │  │  ├─ apps.py
+│  │  │  ├─ migrations
+│  │  │  │  ├─ 0001_initial.py
+│  │  │  │  ├─ 0002_user_is_approved.py
+│  │  │  │  └─ __init__.py
+│  │  │  ├─ models.py
+│  │  │  ├─ serializers.py
+│  │  │  ├─ task.py
+│  │  │  ├─ tests
+│  │  │  │  └─ test_signup_email.py
+│  │  │  ├─ tests.py
+│  │  │  ├─ token.py
+│  │  │  ├─ urls.py
+│  │  │  ├─ utils
+│  │  │  │  ├─ email.py
+│  │  │  │  └─ exceptions.py
+│  │  │  ├─ views.py
+│  │  │  └─ __init__.py
+│  │  ├─ ai_integration
+│  │  │  ├─ admin.py
+│  │  │  ├─ apps.py
+│  │  │  ├─ migrations
+│  │  │  │  └─ __init__.py
+│  │  │  ├─ models.py
+│  │  │  ├─ tests.py
+│  │  │  ├─ views.py
+│  │  │  └─ __init__.py
+│  │  ├─ artists
+│  │  │  ├─ admin.py
+│  │  │  ├─ apps.py
+│  │  │  ├─ migrations
+│  │  │  │  ├─ 0001_initial.py
+│  │  │  │  └─ __init__.py
+│  │  │  ├─ models.py
+│  │  │  ├─ tests.py
+│  │  │  ├─ views.py
+│  │  │  └─ __init__.py
+│  │  ├─ artworks
+│  │  │  ├─ admin.py
+│  │  │  ├─ apps.py
+│  │  │  ├─ migrations
+│  │  │  │  ├─ 0001_initial.py
+│  │  │  │  └─ __init__.py
+│  │  │  ├─ models.py
+│  │  │  ├─ tests.py
+│  │  │  ├─ views.py
+│  │  │  └─ __init__.py
+│  │  ├─ common
+│  │  │  └─ types.py
+│  │  ├─ interactions
+│  │  │  ├─ admin.py
+│  │  │  ├─ apps.py
+│  │  │  ├─ migrations
+│  │  │  │  ├─ 0001_initial.py
+│  │  │  │  └─ __init__.py
+│  │  │  ├─ models.py
+│  │  │  ├─ tests.py
+│  │  │  ├─ views.py
+│  │  │  └─ __init__.py
+│  │  └─ tags
+│  │     └─ migrations
+│  ├─ config
+│  │  ├─ asgi.py
+│  │  ├─ celery.py
+│  │  ├─ settings
+│  │  │  ├─ base.py
+│  │  │  ├─ development.py
+│  │  │  ├─ production.py
+│  │  │  └─ __init__.py
+│  │  ├─ urls.py
+│  │  ├─ wsgi.py
+│  │  └─ __init__.py
+│  ├─ docker
+│  │  ├─ celery
+│  │  │  └─ Dockerfile
+│  │  └─ web
+│  │     └─ Dockerfile
+│  ├─ docker-compose.yml
+│  ├─ manage.py
+│  ├─ media
+│  ├─ postgre_data
+│  ├─ pytest.ini
+│  ├─ README.Docker.md
+│  └─ requirements
+│     ├─ base.txt
+│     ├─ development.txt
+│     └─ production.txt
+├─ frontend
+└─ README.md
+
+```

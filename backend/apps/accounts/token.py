@@ -13,16 +13,16 @@ def generate_email_verification_token(uid : int, email : str) -> TokenStr:
         'user_id': uid,
         'email': email,
         'type': 'email_verification',
-        'iat' : int(datetime.now(timezone.utc)),
-        'exp': int(datetime.now(timezone.utc) + timedelta(minutes=settings.EMAIL_VERIFICATION_TOKEN_EXPIRE_MINUTES)),
+        'iat' : datetime.now(timezone.utc),
+        'exp': datetime.now(timezone.utc) + timedelta(minutes=settings.EMAIL_VERIFICATION_TOKEN_EXPIRE_MINUTES),
         'jti': str(uuid.uuid4())
     }
     
-    return jwt.encode(payload, settings.SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
+    return jwt.encode(payload, settings.SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
 
 def decode_email_verification_token(token : TokenStr) -> None:
     try:
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
         
         jti = payload.get('jti')
         

@@ -23,7 +23,8 @@ class SignUpView(APIView):
         return Response({
             "success": True,
             "message": "회원가입이 완료되었습니다. 입력한 이메일로 인증 메일이 발송되었습니다.",
-            "user_id": user.id
+            "user_id": user.id,
+            "verification_required": user.is_active is False,
         }, status=status.HTTP_201_CREATED)
             
 class SendVerificationEmailView(APIView):
