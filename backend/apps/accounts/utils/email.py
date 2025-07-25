@@ -50,7 +50,7 @@ def send_verification_email(to_email : str, token : TokenStr):
         logger.exception("이메일 발송 실패")
         raise EmailSendError("이메일 발송 중 오류가 발생했습니다.") from e
 
-def check_email_throttle(email: str, cooldown_seconds: int = 90, daily_limit: int = 5) -> None :
+def check_email_throttle(email: str, cooldown_seconds: int = 90, daily_limit: int = 500) -> None :
     """ 이메일 제한
 
     Args:

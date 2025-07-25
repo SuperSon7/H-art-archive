@@ -21,14 +21,12 @@ class UserManager(BaseUserManager):
         extra_fields.setdefault("is_superuser", True)
         extra_fields.setdefault("is_approved", True)
         return self.create_user(email, username, password, **extra_fields)
-
+#TODO: need to add more fiedls for terms and privacy agreement
 class User(AbstractBaseUser, PermissionsMixin):
     class UserType(models.TextChoices):
         ARTIST = 'ARTIST', '작가'
         COLLECTOR = 'COLLECTOR', '컬렉터'
     
-    
-        
     email = models.EmailField(unique=True)
     username = models.CharField(max_length=150)
     user_type = models.CharField(max_length=20, choices=UserType.choices, default=UserType.COLLECTOR)
@@ -71,3 +69,4 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def mark_all_notifications_read(self):
         self.notifications.filter(is_read=False).update(is_read=True)
+        

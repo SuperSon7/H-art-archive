@@ -1,26 +1,26 @@
 from .base import *
+import os
+from dotenv import load_dotenv
 
-DEBUG = False
-# ALLOWED_HOSTS = ['*']
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+load_dotenv(dotenv_path=os.path.join(BASE_DIR, ".env.test"))
 
-# CORS_ALLOW_ALL_ORIGINS = True 
-
-# INSTALLED_APPS += [
-#     'django_extensions',
-# #     'debug_toolbar',  # 디버그 툴바 같은 다른 개발용 도구도 여기에 추가
-# ]
+SECRET_KEY = os.getenv("SECRET_KEY", "dummy-test-secret-key")
+DEBUG = os.getenv("DEBUG", "False") == "True"
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': ':memory:',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get("DB_NAME", "test_db"),
+        'USER': os.environ.get("DB_USER", "postgres"),
+        'PASSWORD': os.environ.get("DB_PASSWORD", "postgres"),
+        'HOST': os.environ.get("DB_HOST", "localhost"),
+        'PORT': os.environ.get("DB_PORT", 5433),
     }
 }
 
-# 비밀번호 해시 속도 향상
-PASSWORD_HASHERS = [
-    'django.contrib.auth.hashers.MD5PasswordHasher',
-]
+EMAIL_BACKEND = os.getenv("EMAIL_BACKEND", "django.core.mail.backends.locmem.EmailBackend")
+DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "noreply@test.com")
 
-
-DEFAULT_FROM_EMAIL = 'django.core.mail.backends.console.EmailBackend'
+CELERY_TASK_ALWAYS_EAGER = True
+CELERY_TASK_EAGER_PROPAGATES = True
