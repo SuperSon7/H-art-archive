@@ -8,6 +8,9 @@ User = get_user_model()
 from django.conf import settings
 from apps.accounts.task import send_verification_email_task
 
+@pytest.mark.unit
+@pytest.mark.integration
+
 @pytest.fixture
 def client():
     return APIClient()
