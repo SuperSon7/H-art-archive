@@ -9,8 +9,8 @@ class SignUpSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True, min_length=8)
     password_confirm = serializers.CharField(write_only=True, min_length=8)
-    # agree_terms = serializers.BooleanField()
-    # agree_privacy = serializers.BooleanField()
+    agree_terms = serializers.BooleanField()
+    agree_privacy = serializers.BooleanField()
     user_type = serializers.ChoiceField(choices=['artist', 'collector'])
     
     def validate_email(self, val):
@@ -52,4 +52,8 @@ class VerifyEmailSerializer(serializers.Serializer):
         except ValueError as e:
             raise serializers.ValidationError({"token": str(e)})
         
+class LoginSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    pasword = serializers.CharField(write_only=True, min_length=8)
+    
     

@@ -34,6 +34,10 @@ ALLOWED_HOSTS = []
 
 AUTH_USER_MODEL = 'accounts.User'
 
+AUTHENTICATION_BACKENDS = [
+    'apps.accounts.backends.EmailBackend',
+]
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -161,13 +165,16 @@ REST_FRAMEWORK = {
     'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.URLPathVersioning',
     'DEFAULT_VERSION': 'v1',
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "apps.accounts.authentication.JWTAuthentication",
+    ],
 }
 
 SPECTACULAR_SETTINGS = {
     'TITLE': 'H-ART API 문서',
     'DESCRIPTION': '홍익대학교 졸업 작품 아카이빙 플랫폼',
     'VERSION': '1.0.0',
-    'SERVE_INCLUDE_SCHEMA': False,  
+    'SERVE_INCLUDE_SCHEMA': False,
 }
 
 # Email Verification Config
