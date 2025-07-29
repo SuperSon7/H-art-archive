@@ -4,18 +4,20 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.exceptions import NotFound
 from rest_framework.permissions import IsAuthenticated
-
-from .serializers import *
-from .token import generate_email_verification_token, add_token_to_blacklist, create_access_token, create_refresh_token
-from .utils.exceptions import EmailSendError
+from rest_framework import viewsets
+from rest_framework.decorators import action
+from rest_framework.exceptions import ValidationError
 
 from django.contrib.auth import authenticate
 from django.contrib.auth import get_user_model
 from django.conf import settings
 
-from .token import create_access_token
-from .utils.email import check_email_throttle
 from .task import send_verification_email_task
+from .serializers import *
+from .token import create_access_token,generate_email_verification_token, add_token_to_blacklist, create_access_token, create_refresh_token
+from .utils.exceptions import EmailSendError
+from .utils.email import check_email_throttle
+from .utils.s3_presigner import generate_presigned_url
 
 import jwt
 
@@ -34,6 +36,7 @@ class SignUpView(APIView):
         }, status=status.HTTP_201_CREATED)
             
 class SendVerificationEmailView(APIView):
+    """Sending Veryfication Email for Singup"""
     def post(self, request : Request) -> Response:
         serializer = SendVerificationEmailSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -173,7 +176,6 @@ class TokenRefreshView(APIView):
             if payload.get('type') != 'refresh':
                 raise jwt.InvalidTokenError("Invalid token type")
             
-            user_id = payload.get("user_id") 
             new_access_token = create_access_token(user)
             
             if user.refresh_token != refresh_token:
@@ -188,3 +190,84 @@ class TokenRefreshView(APIView):
 
         except (jwt.ExpiredSignatureError, jwt.DecodeError, jwt.InvalidTokenError):
             return Response({"error": "invailed token"}, status=401)
+        
+class UserInfoViewSet(viewsets.ViewSet):
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def retrieve(self, request, pk=None):
+        """Retrieve user information by user ID."""
+        try:
+            user = User.objects.get(pk=pk)
+        except User.DoesNotExist:
+            raise NotFound("User not found")
+        
+        serializer = self.serializer_class(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def update(self, request, pk=None):
+        """Update user information."""
+        try:
+            user = User.objects.get(pk=pk)
+        except User.DoesNotExist:
+            raise NotFound("User not found")
+        
+        serializer = self.serializer_class(user, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    @action(detail=True, methods=['post'], url_path='profile-image')
+    def generate_profile_image_url(self, request, pk=None)-> Response:
+        """ Generate a presigned URL for uploading a profile image to S3
+
+        Raises:
+            NotFound: User not found
+
+        Response:
+            "upload_url": S3 presigned URL
+            "s3_key": S3 key of image inside the bucket 
+        """
+        try:
+            user = User.objects.get(pk=pk)
+        except User.DoesNotExist:
+            raise NotFound("User not found")
+
+        serializer = ProfileImageUploadSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        url = generate_presigned_url(
+            user_id=user.id,
+            filename=serializer.validated_data['filename'],
+            content_type=serializer.validated_data['content_type']
+        )
+
+        return Response({
+            "upload_url": url,
+            "s3_key": f"user_uploads/{user.id}/{serializer.validated_data['filename']}"
+        }, status=status.HTTP_200_OK)
+    
+    
+    @action(detail=True, methods=['post'], url_path='profile-image/save')
+    def save_profile_image(self, request, pk=None) -> Response:
+        """ Save the profile image URL to the user model after upload
+
+        Raises:
+            ValidationError: no key porvieded
+            NotFound: User not found
+        """
+        key = request.data.get("key")
+        if not key:
+            raise ValidationError("key is required")
+
+        try:
+            user = User.objects.get(pk=pk)
+        except User.DoesNotExist:
+            raise NotFound("User not found")
+
+        user.profile_image_url = f"https://{settings.AWS_S3_PROFILE_BUCKET}.s3.amazonaws.com/{key}"
+        user.save(update_fields=["profile_image_url"])
+
+        return Response({"success": True})
+    

@@ -1,4 +1,5 @@
 from django.urls import path
+from rest_framework.routers import DefaultRouter
 from .views import (
     SignUpView,
     SendVerificationEmailView,
@@ -6,8 +7,11 @@ from .views import (
     LoginView,
     TokenRefreshView,
     LogoutView,
+    UserInfoViewSet,
 )
 
+router = DefaultRouter()
+router.register(r'users', UserInfoViewSet, basename='user')
 
 urlpatterns = [
     path("signup/", SignUpView.as_view(), name="signup"),
@@ -17,3 +21,5 @@ urlpatterns = [
     path('refresh-token/', TokenRefreshView.as_view(), name='refresh_token'),
     path('logout/', LogoutView.as_view(), name='logout'),
 ]
+
+urlpatterns += router.urls
