@@ -21,7 +21,8 @@ class UserManager(BaseUserManager):
         extra_fields.setdefault("is_superuser", True)
         extra_fields.setdefault("is_approved", True)
         return self.create_user(email, username, password, **extra_fields)
-#TODO: need to add more fiedls for terms and privacy agreement
+
+#TODO: need to add more fiedls for terms and privacy agreement details
 class User(AbstractBaseUser, PermissionsMixin):
     class UserType(models.TextChoices):
         ARTIST = 'ARTIST', '작가'
@@ -31,12 +32,17 @@ class User(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(max_length=150)
     user_type = models.CharField(max_length=20, choices=UserType.choices, default=UserType.COLLECTOR)
     
+    is_active = models.BooleanField(default=False)
     is_approved = models.BooleanField(default=False) # 작가만 해당
-    is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    
+    agree_terms = models.BooleanField(default=False)
+    agree_privacy = models.BooleanField(default=False)
+    
+    refresh_token = models.CharField(max_length=255, blank=True, null=True)  
     
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']

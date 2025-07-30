@@ -8,6 +8,46 @@ logger = logging.getLogger(__name__)
 
 from apps.common.types import *
 
+def create_access_token(user) -> TokenStr:
+    """ 액세스 토큰 생성
+
+    Args:
+        user (User): 사용자 인스턴스
+
+    Returns:
+        TokenStr: JWT 액세스 토큰 문자열
+    """
+
+    payload = {
+        'user_id': user.id,
+        'email': user.email,
+        'type': 'access',
+        'iat': datetime.now(timezone.utc),
+        'exp': datetime.now(timezone.utc) + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES),
+        'jti': str(uuid.uuid4())
+    }
+    return jwt.encode(payload, settings.SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
+
+def create_refresh_token(user) -> TokenStr:
+    """ 리프레시 토큰 생성
+
+    Args:
+        user (User): 사용자 인스턴스
+
+    Returns:
+        TokenStr: JWT 리프레시 토큰 문자열
+    """
+    
+    payload = {
+        'user_id': user.id,
+        'email': user.email,
+        'type': 'refresh',
+        'iat': datetime.now(timezone.utc),
+        'exp': datetime.now(timezone.utc) + timedelta(minutes=settings.REFRESH_TOKEN_EXPIRE_MINUTES),
+        'jti': str(uuid.uuid4())
+    }
+    return jwt.encode(payload, settings.SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
+
 def generate_email_verification_token(uid : int, email : str) -> TokenStr:
     payload = {
         'user_id': uid,
