@@ -85,3 +85,8 @@ class ProfileImageUploadSerializer(serializers.Serializer):
             raise serializers.ValidationError("Invalid content type")
         
         return attrs
+
+class SocialLoginSerializer(serializers.Serializer):
+    code = serializers.CharField(required=True)
+    provider = serializers.ChoiceField(choices=["google", "naver"])
+    redirct_uri = serializers.ChoiceField(required=False)

@@ -18,7 +18,7 @@ from .token import create_access_token,generate_email_verification_token, add_to
 from .utils.exceptions import EmailSendError
 from .utils.email import check_email_throttle
 from .utils.s3_presigner import generate_presigned_url
-
+from .oauth import login_with_social
 import jwt
 
 User = get_user_model()
@@ -271,3 +271,22 @@ class UserInfoViewSet(viewsets.ViewSet):
 
         return Response({"success": True})
     
+class SocialLoginView(APIView):
+    """Social Login API endpoint for user authentication."""
+    
+    def post(self, request : Request) -> Response:
+        """Social login with provider code and redirect URI
+
+        Returns:
+            Response with access and refresh tokens and user type
+        """
+        serializer = SocialLoginSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+            
+        data = serializer.validated_data
+        tokens = login_with_social(
+            provider=data["provider"],
+            code=data["code"],
+            redirect_uri=data.get("redirect_uri")
+        )
+        return Response(tokens)
