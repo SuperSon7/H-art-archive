@@ -3,7 +3,8 @@ from rest_framework.exceptions import AuthenticationFailed
 import jwt
 from django.conf import settings
 from .models import User
-
+import logging
+logger = logging.getLogger(__name__)
 class JWTAuthentication(BaseAuthentication):
     def authenticate(self, request):
         auth_header = request.headers.get('Authorization')
@@ -23,11 +24,14 @@ class JWTAuthentication(BaseAuthentication):
             return (user, token)
         
         except jwt.ExpiredSignatureError:
-            raise AuthenticationFailed('expired token')
+            logger.warning("Expired JWT token used")
+            raise AuthenticationFailed('Token expired')
         
         except jwt.InvalidTokenError:
-            raise AuthenticationFailed('invalid token')
+            logger.warning("Invalid JWT token used")
+            raise AuthenticationFailed('Invalid token')
         
         except User.DoesNotExist:
-            raise AuthenticationFailed('user not found')
+            logger.warning(f"JWT token for non-existent user: {payload.get('user_id')}")
+            raise AuthenticationFailed('User not found')
         

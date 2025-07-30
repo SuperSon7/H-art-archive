@@ -22,7 +22,7 @@ urlpatterns = [
     path('login/', LoginView.as_view(), name='login'),
     path('refresh-token/', TokenRefreshView.as_view(), name='refresh_token'),
     path('logout/', LogoutView.as_view(), name='logout'),
-    path('social-login/', SocialLoginView.as_veiw(), name='social-login'),
+    path('social-login/', SocialLoginView.as_view(), name='social-login'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]
 

@@ -26,22 +26,14 @@ class TestSignupEmail:
         }
         
         response = client.post(reverse("signup"), data)
-        print(response.status_code)
-        print(response.data)
+
         assert response.status_code == 201
-        assert response.data['verification_required'] == False
+        assert response.data['verification_required'] == True
             
     @patch("apps.accounts.views.send_verification_email_task.delay", lambda email, token: send_verification_email_task(email, token))
     @patch("apps.accounts.views.check_email_throttle", lambda x: None)
     def test_email_verification(self, client):
-        import sys
-        print("sys.path = ")
-        for p in sys.path:
-            print("  ", p)
-        print("망할 경로 설정")
-        print("EMAIL_BACKEND:", settings.EMAIL_BACKEND)
-        print("[DEBUG] CURRENT SETTINGS:", settings.SETTINGS_MODULE)
-        print("[DEBUG] EAGER:", settings.CELERY_TASK_ALWAYS_EAGER)
+
         """이메일 인증 테스트"""
         # 1. 회원가입 먼저
         data = {
@@ -53,8 +45,7 @@ class TestSignupEmail:
         }
         
         response = client.post(reverse("signup"), data)
-        print(response.status_code)
-        print(response.data)
+
         assert response.status_code == 201
         user_id = response.data['user_id']
         email = data['email']     
@@ -63,8 +54,7 @@ class TestSignupEmail:
         send_response = client.post(
             reverse("send_verification"), 
             data = {"uid": user_id, "email": email})
-        print(send_response.status_code)
-        print(send_response.data)
+
         assert send_response.status_code == 200
         assert send_response.data['success'] == True
         assert "인증 이메일을 발송하였습니다" in send_response.data["message"]
@@ -73,7 +63,7 @@ class TestSignupEmail:
         # 3. 이메일 본문에서 토큰 추출
         email_body = mail.outbox[0].body
         token = extract_token_from_email_body(email_body)
-        print(token)
+
         # 4. 토큰으로 이메일 인증
         verify_response = client.post(
             reverse("verify_email"),  # 너의 URLconf에서 이 이름으로 등록돼야 함

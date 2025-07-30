@@ -6,7 +6,7 @@ from rest_framework.exceptions import NotFound
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import viewsets
 from rest_framework.decorators import action
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import ValidationError, PermissionDenied
 
 from django.contrib.auth import authenticate
 from django.contrib.auth import get_user_model
@@ -20,6 +20,9 @@ from .utils.email import check_email_throttle
 from .utils.s3_presigner import generate_presigned_url
 from .oauth import login_with_social
 import jwt
+
+import logging
+logger = logging.getLogger(__name__)
 
 User = get_user_model()
 class SignUpView(APIView):
@@ -120,29 +123,28 @@ class LoginView(APIView):
         }
         """
         serializer = LoginSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        email = serializer.validated_data['email']
-        password = serializer.validated_data['password']
-        
-        user = authenticate(request, email=email, password=password)
-        
-        if user: 
-            access_token = create_access_token(user)
-            refresh_token = create_refresh_token(user)
-
-            user.refresh_token = refresh_token
-            user.save(update_fields=['refresh_token'])
+        try:
+            serializer.is_valid(raise_exception=True)
+        except ValidationError as e:
+            email = request.data.get('email', 'unknown')
+            logger.warning(f"[LOGIN FAIL] Email: {email}, Error: {e.detail}")
+            return Response({"error": e.detail}, status=status.HTTP_401_UNAUTHORIZED)
             
-            return Response({
-                "success": True,
-                "message": "Login successful",
-                "access_token": access_token,
-                "refresh_token": refresh_token
-                }, status=status.HTTP_200_OK)
+        user = serializer.validated_data['user']
         
-        return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+        access_token = create_access_token(user)
+        refresh_token = create_refresh_token(user)
 
+        user.refresh_token = refresh_token
+        user.save(update_fields=['refresh_token'])
+        
+        return Response({
+            "success": True,
+            "message": "Login successful",
+            "access_token": access_token,
+            "refresh_token": refresh_token
+            }, status=status.HTTP_200_OK)
+        
 class LogoutView(APIView):
     permission_classes = [IsAuthenticated]
     
@@ -200,7 +202,12 @@ class UserInfoViewSet(viewsets.ViewSet):
         try:
             user = User.objects.get(pk=pk)
         except User.DoesNotExist:
+            logger.warning(f"User not found: {pk}")
             raise NotFound("User not found")
+        
+        # Check if the user is trying to access their own information
+        if request.user.id != int(pk):
+            raise PermissionDenied("You can only access your own information")
         
         serializer = self.serializer_class(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -216,6 +223,7 @@ class UserInfoViewSet(viewsets.ViewSet):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         
+        logger.info(f"User {user.id} updated profile")
         return Response(serializer.data, status=status.HTTP_200_OK)
     
     @action(detail=True, methods=['post'], url_path='profile-image')
@@ -234,14 +242,21 @@ class UserInfoViewSet(viewsets.ViewSet):
         except User.DoesNotExist:
             raise NotFound("User not found")
 
+        if request.user.id != int(pk):
+            raise PermissionDenied("You can only upload your own profile image")
+        
         serializer = ProfileImageUploadSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        url = generate_presigned_url(
-            user_id=user.id,
-            filename=serializer.validated_data['filename'],
-            content_type=serializer.validated_data['content_type']
-        )
+        try:
+            url, s3_key = generate_presigned_url(
+                user_id=user.id,
+                filename=serializer.validated_data['filename'],
+                content_type=serializer.validated_data['content_type']
+            )
+        except Exception as e:
+            logger.error(f"Failed to generate presigned URL for user {user.id}: {str(e)}")
+            raise ValidationError("Failed to generate upload URL")
 
         return Response({
             "upload_url": url,
@@ -266,9 +281,18 @@ class UserInfoViewSet(viewsets.ViewSet):
         except User.DoesNotExist:
             raise NotFound("User not found")
 
+        if request.user.id != int(pk):
+            raise PermissionDenied("You can only update your own profile image")
+        
+        # Validate the S3 key format
+        expected_prefix = f"user_uploads/{user.id}/"
+        if not key.startswith(expected_prefix):
+            raise ValidationError("Invalid S3 key")
+        
         user.profile_image_url = f"https://{settings.AWS_S3_PROFILE_BUCKET}.s3.amazonaws.com/{key}"
         user.save(update_fields=["profile_image_url"])
 
+        logger.info(f"User {user.id} updated profile image")
         return Response({"success": True})
     
 class SocialLoginView(APIView):
@@ -284,9 +308,14 @@ class SocialLoginView(APIView):
         serializer.is_valid(raise_exception=True)
             
         data = serializer.validated_data
-        tokens = login_with_social(
-            provider=data["provider"],
-            code=data["code"],
-            redirect_uri=data.get("redirect_uri")
-        )
-        return Response(tokens)
+        try:
+            tokens = login_with_social(
+                provider=data["provider"],
+                code=data["code"],
+                redirect_uri=data.get("redirect_uri")
+            )
+            logger.info(f"Successful social login with {data['provider']}")
+            return Response(tokens)
+        except Exception as e:
+            logger.error(f"Social login failed: {str(e)}")
+            raise ValidationError("Social login failed")
