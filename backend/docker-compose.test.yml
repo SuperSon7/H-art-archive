@@ -1,0 +1,48 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: docker/web/Dockerfile
+    command: python manage.py runserver 0.0.0.0:8080
+    volumes:
+      - .:/app
+    ports:
+      - "${WEB_PORT:-8080}:8080"
+    depends_on:
+      - test_db
+      - redis
+    env_file:
+      - .env.test
+  test_db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "5433:${DB_PORT:-5432}"
+    volumes:
+      - test_postgre_data:/var/lib/postgresql/data
+    env_file:
+      - .env.test
+  redis:
+    image: redis:latest
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+  celery:
+    build:
+      context: .
+      dockerfile: docker/celery/Dockerfile
+    command: celery -A config worker --loglevel=info
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    depends_on:
+      - redis
+      # - web
+
+volumes:
+  test_postgre_data:
+networks:
+  backend-net:

@@ -1,8 +1,12 @@
 from rest_framework import serializers
-from django.contrib.auth import get_user_model
-from .token import decode_email_verification_token
-User = get_user_model()
 
+from django.contrib.auth import get_user_model
+from django.contrib.auth import authenticate
+
+from .token import decode_email_verification_token
+
+import os
+User = get_user_model()
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -60,9 +64,20 @@ class VerifyEmailSerializer(serializers.Serializer):
         
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
-    pasword = serializers.CharField(write_only=True, min_length=8)
+    password = serializers.CharField(write_only=True, min_length=8)
     
-    
+    def validate(self, attrs):
+        email = attrs.get('email')
+        password = attrs.get('password')
+        if email and password:
+            user = authenticate(email=email, password=password)
+            if not user:
+                raise serializers.ValidationError("Invalid credentials")
+            if not user.is_active:
+                raise serializers.ValidationError("User account is disabled")
+            
+            attrs['user'] = user
+        return attrs
 class ProfileImageUploadSerializer(serializers.Serializer):
     filename = serializers.CharField(max_length=255)
     content_type = serializers.CharField(max_length=50)
@@ -74,19 +89,25 @@ class ProfileImageUploadSerializer(serializers.Serializer):
         if not filename or not content_type:
             raise serializers.ValidationError("Filename and content type are required")
         
+        MAX_FILE_SIZE = 5 * 1024 * 1024
         
-        valid_content_types = [
-            'image/jpeg',
-            'image/png',
-            'image/gif',
-            'image/webp',
-        ]
+        valid_content_types = {
+            'image/jpeg': ['.jpg', '.jpeg'],
+            'image/png': ['.png'],
+            'image/gif': ['.gif'],
+            'image/webp': ['.webp'],
+        }
         if content_type not in valid_content_types:
             raise serializers.ValidationError("Invalid content type")
+        
+        # check content type against file extension
+        file_ext = os.path.splitext(filename.lower())[1]
+        if file_ext not in valid_content_types[content_type]:
+            raise serializers.ValidationError("File extension doesn't match content type")
         
         return attrs
 
 class SocialLoginSerializer(serializers.Serializer):
     code = serializers.CharField(required=True)
     provider = serializers.ChoiceField(choices=["google", "naver"])
-    redirct_uri = serializers.ChoiceField(required=False)
+    redirect_uri = serializers.CharField(required=False)

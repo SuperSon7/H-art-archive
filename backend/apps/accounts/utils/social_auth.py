@@ -52,10 +52,10 @@ class SocialAdapterRegistry:
     _adapters = {}
     
     @classmethod
-    def resgister(cls, provider_name, adapter_class):
+    def register(cls, adapter_class):
         if not hasattr(adapter_class, 'provider_name'):
             raise ValueError("Adapter must have provider_name")
-        cls._adapters[provider_name] = adapter_class
+        cls._adapters[adapter_class.provider_name] = adapter_class
         
     @classmethod
     def get_adapter(cls, provider_name):

@@ -26,10 +26,9 @@ class TestSignupEmail:
         }
         
         response = client.post(reverse("signup"), data)
-        print(response.status_code)
-        print(response.data)
+
         assert response.status_code == 201
-        assert response.data['verification_required'] == False
+        assert response.data['verification_required'] == True
             
     @patch("apps.accounts.views.send_verification_email_task.delay", lambda email, token: send_verification_email_task(email, token))
     @patch("apps.accounts.views.check_email_throttle", lambda x: None)
