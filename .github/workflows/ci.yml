@@ -79,7 +79,7 @@ jobs:
           pip install -r requirements/development.txt
       - name: Copy template and override secrets
         run: |
-          cp backend/.env.test.template backend/.env.test
+          cp .env.test.template .env.test
           echo "SECRET_KEY=${{ secrets.TEST_SECRET_KEY }}" >> backend/.env.test
           echo "DB_PASSWORD=${{ secrets.TEST_DB_PASSWORD }}" >> backend/.env.test
           echo "EMAIL_HOST_PASSWORD=${{ secrets.TEST_EMAIL_HOST_PASSWORD }}" >> backend/.env.test
