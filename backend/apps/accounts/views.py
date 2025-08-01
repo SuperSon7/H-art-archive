@@ -162,7 +162,7 @@ class LogoutView(APIView):
         user = request.user
         user.refresh_token = None
         user.save()
-        return Response({"detail": "로그아웃 완료"}, status=200)
+        return Response(status=204)
     
 class TokenRefreshView(APIView):
     """
@@ -270,7 +270,7 @@ class UserInfoViewSet(viewsets.ViewSet):
 
         return Response({
             "upload_url": url,
-            "s3_key": f"user_uploads/{user.id}/{serializer.validated_data['filename']}"
+            "s3_key": s3_key
         }, status=status.HTTP_200_OK)
     
     

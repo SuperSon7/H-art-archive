@@ -1,12 +1,16 @@
-import pytest
-from unittest.mock import patch, Mock
+from unittest.mock import Mock, patch
+
 import boto3
-from moto import mock_s3
-from apps.accounts.utils import generate_presigned_url, login_with_social
+import pytest
+from moto import mock_aws
+
+from apps.accounts.oauth import login_with_social
+from apps.accounts.utils.s3_presigner import generate_presigned_url
+
 
 class TestGeneratePresignedUrl:
     
-    @mock_s3
+    @mock_aws
     def test_generate_presigned_url_success(self):
         """S3 presigned URL 생성 성공 테스트"""
         # Mock S3 bucket 생성
@@ -34,10 +38,11 @@ class TestGeneratePresignedUrl:
         
         with pytest.raises(Exception):
             generate_presigned_url(1, 'test.jpg', 'image/jpeg')
-
+            
+@pytest.mark.django_db
 class TestLoginWithSocial:
     
-    @patch('myapp.utils.SocialAdapterRegistry.get_adapter')
+    @patch('apps.accounts.oauth.SocialAdapterRegistry.get_adapter')
     def test_successful_social_login_new_user(self, mock_get_adapter):
         """새 사용자 소셜 로그인 성공 테스트"""
         # Mock adapter 설정
@@ -57,7 +62,7 @@ class TestLoginWithSocial:
         assert 'refresh' in result
         assert 'user_type' in result
     
-    @patch('myapp.utils.SocialAdapterRegistry.get_adapter')
+    @patch('apps.accounts.oauth.SocialAdapterRegistry.get_adapter')
     def test_social_login_existing_user(self, mock_get_adapter, social_user):
         """기존 사용자 소셜 로그인 테스트"""
         mock_adapter = Mock()
@@ -75,7 +80,7 @@ class TestLoginWithSocial:
         assert 'access' in result
         assert result['user_type'] == 'collector'
     
-    @patch('myapp.utils.SocialAdapterRegistry.get_adapter')
+    @patch('apps.accounts.oauth.SocialAdapterRegistry.get_adapter')
     def test_social_login_adapter_error(self, mock_get_adapter):
         """소셜 로그인 어댑터 오류 테스트"""
         mock_adapter = Mock()

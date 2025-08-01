@@ -43,9 +43,12 @@ class User(AbstractBaseUser, PermissionsMixin):
     agree_terms = models.BooleanField(default=False)
     agree_privacy = models.BooleanField(default=False)
     
-    refresh_token = models.CharField(max_length=255, blank=True, null=True)
+    refresh_token = models.CharField(blank=True, null=True)
     
     profile_image_url = models.URLField(blank=True, null=True)
+    
+    social_type = models.CharField(max_length=30, blank=True, null=True)
+    social_id = models.CharField(max_length=100, blank=True, null=True, unique=True)    
     
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']

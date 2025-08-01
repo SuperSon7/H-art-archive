@@ -21,7 +21,7 @@ def generate_presigned_url(user_id: int, filename: str, content_type: str)-> str
         url = s3.generate_presigned_url(
             ClientMethod="put_object",
             Params={
-                "Bucket": settings.AWS_S3_PROFILE_BUCKET,
+                "Bucket": settings.AWS_S3_BUCKET_NAME,
                 "Key": key,
                 "ContentType": content_type,
             },

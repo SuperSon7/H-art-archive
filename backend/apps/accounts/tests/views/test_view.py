@@ -1,8 +1,8 @@
-import pytest
+from unittest.mock import patch
+
+from django.contrib.auth import get_user_model
 from django.urls import reverse
 from rest_framework import status
-from unittest.mock import patch, Mock
-from django.contrib.auth import get_user_model
 
 User = get_user_model()
 class TestUserInfoViewSet:
@@ -18,6 +18,7 @@ class TestUserInfoViewSet:
         """다른 사용자 프로필 조회 시도 테스트"""
         other_user = User.objects.create_user(
             email='other@example.com',
+            username='otheruser',
             password='otherpass123'
         )
         url = reverse('user-detail', kwargs={'pk': other_user.id})
@@ -27,11 +28,11 @@ class TestUserInfoViewSet:
     def test_update_own_profile(self, authenticated_client, user):
         """본인 프로필 수정 테스트"""
         url = reverse('user-detail', kwargs={'pk': user.id})
-        data = {'first_name': 'Updated Name'}
+        data = {'username': 'Updated Name'}
         response = authenticated_client.put(url, data)
         assert response.status_code == status.HTTP_200_OK
         user.refresh_from_db()
-        assert user.first_name == 'Updated Name'
+        assert user.username == 'Updated Name'
     
     def test_nonexistent_user(self, authenticated_client):
         """존재하지 않는 사용자 조회 테스트"""
@@ -39,7 +40,7 @@ class TestUserInfoViewSet:
         response = authenticated_client.get(url)
         assert response.status_code == status.HTTP_404_NOT_FOUND
     
-    @patch('myapp.utils.generate_presigned_url')
+    @patch('apps.accounts.utils.s3_presigner.generate_presigned_url')
     def test_generate_profile_image_url(self, mock_generate_url, authenticated_client, user):
         """프로필 이미지 업로드 URL 생성 테스트"""
         mock_generate_url.return_value = ('https://s3.amazonaws.com/presigned-url', 'user_uploads/1/test.jpg')
@@ -72,7 +73,7 @@ class TestUserInfoViewSet:
 
 class TestSocialLoginView:
     
-    @patch('myapp.utils.login_with_social')
+    @patch('apps.accounts.views.login_with_social')
     def test_successful_social_login(self, mock_login, api_client):
         """성공적인 소셜 로그인 테스트"""
         mock_login.return_value = {
@@ -91,7 +92,7 @@ class TestSocialLoginView:
         assert 'access' in response.data
         assert 'refresh' in response.data
     
-    @patch('myapp.utils.login_with_social')
+    @patch('apps.accounts.oauth.login_with_social')
     def test_failed_social_login(self, mock_login, api_client):
         """실패한 소셜 로그인 테스트"""
         mock_login.side_effect = Exception("OAuth error")
