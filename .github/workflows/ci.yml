@@ -80,11 +80,11 @@ jobs:
       - name: Copy template and override secrets
         run: |
           cp .env.test.template .env.test
-          echo "SECRET_KEY=${{ secrets.TEST_SECRET_KEY }}" >> backend/.env.test
-          echo "DB_PASSWORD=${{ secrets.TEST_DB_PASSWORD }}" >> backend/.env.test
-          echo "EMAIL_HOST_PASSWORD=${{ secrets.TEST_EMAIL_HOST_PASSWORD }}" >> backend/.env.test
-          echo "EMAIL_HOST_USER=${{ secrets.TEST_EMAIL_HOST_USER }}" >> backend/.env.test
-          echo "DB_HOST=${{ secrets.TEST_DB_HOST }}" >> backend/.env.test
+          echo "SECRET_KEY=${{ secrets.TEST_SECRET_KEY }}" >> .env.test
+          echo "DB_PASSWORD=${{ secrets.TEST_DB_PASSWORD }}" >> .env.test
+          echo "EMAIL_HOST_PASSWORD=${{ secrets.TEST_EMAIL_HOST_PASSWORD }}" >> .env.test
+          echo "EMAIL_HOST_USER=${{ secrets.TEST_EMAIL_HOST_USER }}" >> .env.test
+          echo "DB_HOST=${{ secrets.TEST_DB_HOST }}" >> .env.test
       - name: Run ruff
         run: |
           pip install ruff
