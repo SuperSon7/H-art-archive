@@ -12,7 +12,15 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .oauth import login_with_social
-from .serializers import *
+from .serializers import (
+    LoginSerializer,
+    ProfileImageUploadSerializer,
+    SendVerificationEmailSerializer,
+    SignUpSerializer,
+    SocialLoginSerializer,
+    UserSerializer,
+    VerifyEmailSerializer,
+)
 from .task import send_verification_email_task
 from .token import (
     add_token_to_blacklist,

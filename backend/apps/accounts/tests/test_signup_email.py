@@ -1,3 +1,4 @@
+import re
 from unittest.mock import patch
 
 import pytest
@@ -6,8 +7,9 @@ from django.core import mail
 from django.urls import reverse
 from rest_framework.test import APIClient
 
-User = get_user_model()
 from apps.accounts.task import send_verification_email_task
+
+User = get_user_model()
 
 
 @pytest.fixture
@@ -30,7 +32,7 @@ class TestSignupEmail:
         response = client.post(reverse("signup"), data)
 
         assert response.status_code == 201
-        assert response.data['verification_required'] == True
+        assert response.data['verification_required']
             
     @patch("apps.accounts.views.send_verification_email_task.delay", lambda email, token: send_verification_email_task(email, token))
     @patch("apps.accounts.views.check_email_throttle", lambda x: None)
@@ -57,7 +59,7 @@ class TestSignupEmail:
             reverse("send_verification"), 
             data = {"uid": user_id, "email": email})
         assert send_response.status_code == 200
-        assert send_response.data['success'] == True
+        assert send_response.data['success']
         assert "인증 이메일을 발송하였습니다" in send_response.data["message"]
         assert len(mail.outbox) == 1
     
@@ -80,7 +82,7 @@ class TestSignupEmail:
         user.refresh_from_db()
         assert user.is_active is True
         
-import re
+
 
 
 def extract_token_from_email_body(email_body: str) -> str:

@@ -6,9 +6,11 @@ import jwt
 from django.conf import settings
 from django.core.cache import cache
 
+from apps.common.types import TokenStr
+
 logger = logging.getLogger(__name__)
 
-from apps.common.types import *
+
 
 
 def create_access_token(user) -> TokenStr:

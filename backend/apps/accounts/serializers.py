@@ -88,8 +88,6 @@ class ProfileImageUploadSerializer(serializers.Serializer):
         if not filename or not content_type:
             raise serializers.ValidationError("Filename and content type are required")
         
-        MAX_FILE_SIZE = 5 * 1024 * 1024
-        
         valid_content_types = {
             'image/jpeg': ['.jpg', '.jpeg'],
             'image/png': ['.png'],

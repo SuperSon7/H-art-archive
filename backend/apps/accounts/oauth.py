@@ -4,7 +4,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from apps.accounts.models import User
 
-from .utils.social_auth import *
+from .utils.social_auth import SocialAdapterRegistry
 
 logger = getLogger(__name__)
 

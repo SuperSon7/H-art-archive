@@ -1,6 +1,6 @@
 from celery import shared_task
 
-from apps.common.types import *
+from apps.common.types import TokenStr
 
 from .utils.email import send_verification_email
 

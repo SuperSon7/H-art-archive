@@ -1,17 +1,14 @@
 import os
 
+import pytest
+from django.contrib.auth import get_user_model
 from dotenv import load_dotenv
+from rest_framework.test import APIClient
+from rest_framework_simplejwt.tokens import RefreshToken
 
 
 def pytest_configure():
     load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), ".env.test"))
-    
-
-import pytest
-from django.contrib.auth import get_user_model
-from rest_framework.test import APIClient
-from rest_framework_simplejwt.tokens import RefreshToken
-
 User = get_user_model()
 
 @pytest.fixture
