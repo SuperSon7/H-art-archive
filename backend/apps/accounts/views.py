@@ -1,27 +1,37 @@
-from rest_framework.views import APIView
+import logging
+
+import jwt
+from django.conf import settings
+from django.contrib.auth import get_user_model
+from rest_framework import status, viewsets
+from rest_framework.decorators import action
+from rest_framework.exceptions import NotFound, PermissionDenied, ValidationError
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.exceptions import NotFound
-from rest_framework.permissions import IsAuthenticated
-from rest_framework import viewsets
-from rest_framework.decorators import action
-from rest_framework.exceptions import ValidationError, PermissionDenied
+from rest_framework.views import APIView
 
-from django.contrib.auth import authenticate
-from django.contrib.auth import get_user_model
-from django.conf import settings
-
-from .task import send_verification_email_task
-from .serializers import *
-from .token import create_access_token,generate_email_verification_token, add_token_to_blacklist, create_access_token, create_refresh_token
-from .utils.exceptions import EmailSendError
-from .utils.email import check_email_throttle
-from .utils.s3_presigner import generate_presigned_url
 from .oauth import login_with_social
-import jwt
+from .serializers import (
+    LoginSerializer,
+    ProfileImageUploadSerializer,
+    SendVerificationEmailSerializer,
+    SignUpSerializer,
+    SocialLoginSerializer,
+    UserSerializer,
+    VerifyEmailSerializer,
+)
+from .task import send_verification_email_task
+from .token import (
+    add_token_to_blacklist,
+    create_access_token,
+    create_refresh_token,
+    generate_email_verification_token,
+)
+from .utils.email import check_email_throttle
+from .utils.exceptions import EmailSendError
+from .utils.s3_presigner import generate_presigned_url
 
-import logging
 logger = logging.getLogger(__name__)
 
 User = get_user_model()
@@ -152,7 +162,7 @@ class LogoutView(APIView):
         user = request.user
         user.refresh_token = None
         user.save()
-        return Response({"detail": "로그아웃 완료"}, status=200)
+        return Response(status=204)
     
 class TokenRefreshView(APIView):
     """
@@ -260,7 +270,7 @@ class UserInfoViewSet(viewsets.ViewSet):
 
         return Response({
             "upload_url": url,
-            "s3_key": f"user_uploads/{user.id}/{serializer.validated_data['filename']}"
+            "s3_key": s3_key
         }, status=status.HTTP_200_OK)
     
     

@@ -1,11 +1,10 @@
-from rest_framework import serializers
+import os
 
-from django.contrib.auth import get_user_model
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, get_user_model
+from rest_framework import serializers
 
 from .token import decode_email_verification_token
 
-import os
 User = get_user_model()
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -88,8 +87,6 @@ class ProfileImageUploadSerializer(serializers.Serializer):
         
         if not filename or not content_type:
             raise serializers.ValidationError("Filename and content type are required")
-        
-        MAX_FILE_SIZE = 5 * 1024 * 1024
         
         valid_content_types = {
             'image/jpeg': ['.jpg', '.jpeg'],

@@ -1,8 +1,12 @@
 # test_serializers.py
 import pytest
 from django.contrib.auth import get_user_model
-from rest_framework.exceptions import ValidationError
-from apps.accounts.serializers import LoginSerializer, ProfileImageUploadSerializer, SocialLoginSerializer
+
+from apps.accounts.serializers import (
+    LoginSerializer,
+    ProfileImageUploadSerializer,
+    SocialLoginSerializer,
+)
 
 User = get_user_model()
 @pytest.mark.django_db

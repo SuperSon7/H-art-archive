@@ -1,7 +1,10 @@
-from django.contrib.auth.backends import ModelBackend
-from .models import User
 from typing import Optional
+
+from django.contrib.auth.backends import ModelBackend
 from django.http import HttpRequest
+
+from .models import User
+
 
 class EmailBackend(ModelBackend):
     """

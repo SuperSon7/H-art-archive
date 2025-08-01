@@ -1,7 +1,9 @@
 # Adapters
 from abc import ABC, abstractmethod
+
 from authlib.integrations.requests_client import OAuth2Session
 from django.conf import settings
+
 
 class BaseSocialAdapter(ABC):
     provider_name = None

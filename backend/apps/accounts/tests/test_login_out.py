@@ -1,7 +1,8 @@
 import pytest
+from django.contrib.auth import get_user_model
 from django.urls import reverse
 from rest_framework.test import APIClient
-from django.contrib.auth import get_user_model
+
 User = get_user_model()
 
 @pytest.fixture
@@ -10,7 +11,12 @@ def client():
 
 @pytest.fixture
 def test_user():
-    return User.objects.create_user(email="HDS2020@anything.com", password="pw1234", username = "HOTBOy")
+    return User.objects.create_user(
+        email="HDS2020@anything.com", 
+        password="password1234", 
+        username = "HOTBOy", 
+        is_active=True
+)
 
 @pytest.mark.django_db
 class TestLoginOut:
@@ -19,12 +25,12 @@ class TestLoginOut:
         
         data = {
             "email": "HDS2020@anything.com", 
-            "password": "pw1234", 
+            "password": "password1234", 
             "username": "HOTBOy"
         }
         
         response = client.post(reverse("login"), data)
-        
+        print(response.data)
         assert response.status_code == 200
         assert 'access_token' in response.data
     
@@ -34,4 +40,4 @@ class TestLoginOut:
         response = client.post(reverse("logout"))
         
         assert response.status_code == 204
-        assert 'access_token' not in response.data
+        assert response.content == b''

@@ -1,4 +1,4 @@
-from .base import *
+from .base import *  # noqa: E402, F403
 
 DEBUG = True
 ALLOWED_HOSTS = ['*']
@@ -6,7 +6,7 @@ ALLOWED_HOSTS = ['*']
 
 CORS_ALLOW_ALL_ORIGINS = True 
 
-INSTALLED_APPS += [
+INSTALLED_APPS += [ # noqa: F405
     'django_extensions',
 #     'debug_toolbar',  # 디버그 툴바 같은 다른 개발용 도구도 여기에 추가
 ]
