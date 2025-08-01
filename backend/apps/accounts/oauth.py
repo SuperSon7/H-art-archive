@@ -1,7 +1,11 @@
-from .utils.social_auth import *
-from apps.accounts.models import User
-from rest_framework_simplejwt.tokens import RefreshToken
 from logging import getLogger
+
+from rest_framework_simplejwt.tokens import RefreshToken
+
+from apps.accounts.models import User
+
+from .utils.social_auth import *
+
 logger = getLogger(__name__)
 
 def login_with_social(provider, code, redirect_uri):

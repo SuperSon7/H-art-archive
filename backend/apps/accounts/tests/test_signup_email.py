@@ -1,12 +1,14 @@
+from unittest.mock import patch
+
 import pytest
+from django.contrib.auth import get_user_model
 from django.core import mail
 from django.urls import reverse
 from rest_framework.test import APIClient
-from unittest.mock import patch
-from django.contrib.auth import get_user_model
+
 User = get_user_model()
-from django.conf import settings
 from apps.accounts.task import send_verification_email_task
+
 
 @pytest.fixture
 def client():
@@ -79,6 +81,8 @@ class TestSignupEmail:
         assert user.is_active is True
         
 import re
+
+
 def extract_token_from_email_body(email_body: str) -> str:
     # 예: http://localhost:8000/api/v1/accounts/verify-email/?token=xxxxx
     match = re.search(r'token=([a-zA-Z0-9\.\-_]+)', email_body)

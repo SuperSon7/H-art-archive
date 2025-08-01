@@ -1,9 +1,12 @@
-import pytest
 import jwt
+import pytest
 from django.conf import settings
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.test import APIRequestFactory
+
 from apps.accounts.authentication import JWTAuthentication
+
+
 @pytest.mark.django_db
 class TestJWTAuthentication:
     

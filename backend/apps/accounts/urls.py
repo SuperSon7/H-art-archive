@@ -1,15 +1,16 @@
 from django.urls import path
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenRefreshView
+
 from .views import (
-    SignUpView,
-    SendVerificationEmailView,
-    VerifyEmailView,
     LoginView,
-    TokenRefreshView,
     LogoutView,
-    UserInfoViewSet,
+    SendVerificationEmailView,
+    SignUpView,
     SocialLoginView,
+    TokenRefreshView,
+    UserInfoViewSet,
+    VerifyEmailView,
 )
 
 router = DefaultRouter()

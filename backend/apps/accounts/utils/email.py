@@ -1,20 +1,19 @@
+import logging
 import smtplib
 import socket
 from datetime import datetime, time
 
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.exceptions import Throttled
-
-from django.core.mail import EmailMultiAlternatives
 from django.conf import settings
 from django.core.cache import cache
+from django.core.mail import EmailMultiAlternatives
+from rest_framework.exceptions import Throttled
 
-import logging
 logger = logging.getLogger(__name__)
 
-from .exceptions import EmailSendError, SMTPConfigError, NetworkError
 from apps.common.types import *
+
+from .exceptions import EmailSendError, NetworkError, SMTPConfigError
+
 
 def send_verification_email(to_email : str, token : TokenStr):
     verify_url = f"{settings.FRONTEND_VERIFY_URL}?token={token}"

@@ -1,8 +1,11 @@
-from django.db import models
 from django.conf import settings
-from parler.models import TranslatableModel, TranslatedFields
 from django.core.cache import cache
-from apps.interactions.models import PurchaseInquiry 
+from django.db import models
+from parler.models import TranslatableModel, TranslatedFields
+
+from apps.interactions.models import PurchaseInquiry
+
+
 class Artist(TranslatableModel):
     translations = TranslatedFields(
         artist_name = models.CharField(max_length=150, db_index=True, help_text="작가명"),

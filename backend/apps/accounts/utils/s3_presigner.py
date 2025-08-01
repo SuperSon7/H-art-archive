@@ -1,6 +1,8 @@
+import logging
+
 import boto3
 from django.conf import settings
-import logging
+
 logger = logging.getLogger(__name__)
 def generate_presigned_url(user_id: int, filename: str, content_type: str)-> str:
     """Generate a presigned URL for uploading a file to S3.

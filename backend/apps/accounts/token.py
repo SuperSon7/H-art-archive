@@ -1,12 +1,15 @@
-import jwt
+import logging
+import uuid
 from datetime import datetime, timedelta, timezone
+
+import jwt
 from django.conf import settings
 from django.core.cache import cache
-import uuid
-import logging
+
 logger = logging.getLogger(__name__)
 
 from apps.common.types import *
+
 
 def create_access_token(user) -> TokenStr:
     """ 액세스 토큰 생성
@@ -82,10 +85,10 @@ def decode_email_verification_token(token : TokenStr) -> None:
         return payload
     
     except jwt.ExpiredSignatureError:
-        logger.info(f"token period expires")
+        logger.info("token period expires")
         raise ValueError("Token expires")
     except jwt.InvalidTokenError:
-        logger.warning(f"Invalid token")
+        logger.warning("Invalid token")
         raise ValueError("Invalid token")
     except Exception as e:
         raise ValueError(f"An error occurred while processing the token: {str(e)}")

@@ -1,9 +1,10 @@
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.core.validators import MinValueValidator, MaxValueValidator
+from django.utils import timezone
 from parler.models import TranslatableModel, TranslatedFields
+
 from apps.artists.models import Artist
 
-from django.utils import timezone
 
 def get_current_year():
     return timezone.now().year
