@@ -17,7 +17,8 @@ class Artist(TranslatableModel):
         on_delete=models.CASCADE,
         related_name='artist_profile'
     )
-
+    
+    # 작가용 대표 이미지, 기본 프로필과 별개
     profile_image = models.ImageField(upload_to='artists/profile/', blank=True, null=True, help_text="프로필 이미지")
     artwork_count = models.PositiveIntegerField(default=0, help_text="등록 작품 수")
     follower_count = models.PositiveBigIntegerField(default=0, help_text="팔로워 수")

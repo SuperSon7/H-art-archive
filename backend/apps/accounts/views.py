@@ -329,3 +329,5 @@ class SocialLoginView(APIView):
         except Exception as e:
             logger.error(f"Social login failed: {str(e)}")
             raise ValidationError("Social login failed")
+        
+    #TODO: Implement follow and unfollow funcitonality
