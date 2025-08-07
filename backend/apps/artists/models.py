@@ -47,6 +47,7 @@ class Artist(TranslatableModel):
     def __str__(self):
         return self.safe_translation_getter('artist_name', any_language=True) or f"Artist #{self.pk}"
     
+    #TODO: service layer로 분리 고려 
     @property
     def is_approved(self):
         """작가 승인 상태"""
@@ -70,14 +71,19 @@ class Artist(TranslatableModel):
             
     @classmethod
     def get_featured_artists(cls):
+        """ 
+        Retrieve featured artists from cache or database.
+        THis method caches the result for 15 minutes to reduce database load.
+        """
         cache_key = 'featured_artists'
         featured = cache.get(cache_key)
         
         if featured is None:
             featured = list(cls.objects.filter(
                 is_featured=True,
-                is_active=True,
-                user__is_approved=True
+                user__is_active=True,
+                user__is_approved=True,
+                user__UserType='ARTIST'
             ).select_related('user'))
             cache.set(cache_key, featured, 60 * 15)
         
