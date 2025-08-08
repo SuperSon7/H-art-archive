@@ -31,4 +31,3 @@ def generate_presigned_url(user_id: int, filename: str, content_type: str)-> str
     except Exception as e:
         logger.error(f"Failed to generate presigned URL: {str(e)}")
         raise
-    
