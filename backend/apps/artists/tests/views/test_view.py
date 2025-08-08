@@ -6,33 +6,37 @@ User = get_user_model()
 
 class TestUserInfoViewSet:
     
-    def test_retrieve_own_profile(self, authenticated_client, artist):
+    def test_retrieve_own_profile(self, artist_client, artist):
         """artist profile retrieval test"""
         url = reverse('artists-detail', kwargs={'pk': artist.id})
-        response = authenticated_client.get(url)
+        response = artist_client.get(url)
+        print("artist id:", artist.id)
+        print("artist user id:", artist.user.id)
+        print("client token auth header:", artist_client._credentials)
         assert response.status_code == status.HTTP_200_OK
         assert response.data['artist_name'] == artist.artist_name
         
-    def test_approve_artist(self, authenticated_client, artist):
+    def test_approve_artist(self, admin_client, artist):
         """ artist approval test """
         url = reverse('artists-approve', kwargs={'pk':artist.id})
-        response = authenticated_client.post(url)
+        response = admin_client.post(url)
         assert response.status_code == status.HTTP_200_OK
         
-    def test_reject_artist(self, authenticated_client, approved_artist):
+    def test_reject_artist(self, admin_client, approved_artist):
         """ artist approval test """
         url = reverse('artists-reject', kwargs={'pk':approved_artist.id})
-        response = authenticated_client.post(url)
+        response = admin_client.post(url)
         assert response.status_code == status.HTTP_200_OK
         
-    def test_update_artist_profile(self, authenticated_client, artist):
+    def test_update_artist_profile(self, artist_client, artist):
         """ artist profile update test """
         url = reverse('artists-detail', kwargs={'pk':artist.id})
         data = {
             'artist_name': 'Updated Artist Name',
             'artist_note': 'Updated artist note'
         }
-        response = authenticated_client.put(url, data)
+        response = artist_client.patch(url, data)
+        print("response data:", response.data)
         assert response.status_code == status.HTTP_200_OK
         artist.refresh_from_db()
         assert artist.artist_name == 'Updated Artist Name' and artist.artist_note == 'Updated artist note'

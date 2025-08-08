@@ -22,7 +22,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     
     path("api/v1/accounts/", include('apps.accounts.urls')),
-    # path("api/v1/artists/", include('artists.urls')),
+    path("api/v1/artists/", include('apps.artists.urls')),
     # path("api/v1/artworks/", include('artworks.urls')),
     # path("api/v1/tags/", include('tags.urls')),
     # path("api/v1/ai_intergration/", include('ai_intergration.urls')),

@@ -5,7 +5,6 @@ from parler.models import TranslatableModel, TranslatedFields
 
 from apps.interactions.models import PurchaseInquiry
 
-
 class Artist(TranslatableModel):
     translations = TranslatedFields(
         artist_name = models.CharField(max_length=150, db_index=True, help_text="작가명"),
@@ -18,11 +17,12 @@ class Artist(TranslatableModel):
         related_name='artist_profile'
     )
     
-    # 작가용 대표 이미지, 기본 프로필과 별개
-    profile_image = models.ImageField(upload_to='artists/profile/', blank=True, null=True, help_text="프로필 이미지")
+    # 대표작 이미지
+    main_image = models.ImageField(
+        upload_to='artists/profile/', blank=True, null=True, help_text="대표작품 이미지"
+        )
     artwork_count = models.PositiveIntegerField(default=0, help_text="등록 작품 수")
     follower_count = models.PositiveBigIntegerField(default=0, help_text="팔로워 수")
-    
     
     is_featured = models.BooleanField(
         default=False,
@@ -41,8 +41,6 @@ class Artist(TranslatableModel):
             models.Index(fields=['follower_count']),
             models.Index(fields=['is_featured'])
         ]
-
-    
     
     def __str__(self):
         return self.safe_translation_getter('artist_name', any_language=True) or f"Artist #{self.pk}"
@@ -51,7 +49,7 @@ class Artist(TranslatableModel):
     @property
     def is_approved(self):
         """작가 승인 상태"""
-        return self.user.user_type == 'ARTIST' and self.user.is_approved
+        return self.user.approval_status == 'APPROVED'
     
     @property
     def is_currently_featured(self):
@@ -68,7 +66,6 @@ class Artist(TranslatableModel):
             ).count()
             self.save(update_fields=['artwork_count'])
     
-            
     @classmethod
     def get_featured_artists(cls):
         """ 
