@@ -117,3 +117,8 @@ coverage/
 
 # DB
 .postgre_data/
+
+# LocalStack local state/cache
+.localstack/
+# LocalStack docker volume data 
+localstack_volume/
