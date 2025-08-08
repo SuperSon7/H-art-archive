@@ -5,7 +5,7 @@ import pytest
 from moto import mock_aws
 
 from apps.accounts.oauth import login_with_social
-from apps.accounts.utils.s3_presigner import generate_presigned_url
+from apps.utils.s3_presigner import generate_presigned_url
 
 
 class TestGeneratePresignedUrl:
