@@ -1,4 +1,3 @@
-import os
 
 from django.contrib.auth import authenticate, get_user_model
 from rest_framework import serializers
@@ -9,7 +8,7 @@ User = get_user_model()
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'email', 'username', 'user_type', 'is_active', 'is_approved', 'created_at', 'updated_at']
+        fields = ['id', 'email', 'username', 'user_type', 'is_active', 'created_at', 'updated_at']
         read_only_fields = ['id', 'created_at', 'updated_at']
         
 class SignUpSerializer(serializers.Serializer):

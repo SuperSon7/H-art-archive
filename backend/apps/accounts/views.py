@@ -11,6 +11,9 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from apps.utils.s3_presigner import generate_presigned_url
+from apps.utils.serializers import S3ImageUploadSerializer
+
 from .oauth import login_with_social
 from .serializers import (
     LoginSerializer,
@@ -20,7 +23,6 @@ from .serializers import (
     UserSerializer,
     VerifyEmailSerializer,
 )
-from apps.utils.serializers import S3ImageUploadSerializer
 from .task import send_verification_email_task
 from .token import (
     add_token_to_blacklist,
@@ -30,7 +32,6 @@ from .token import (
 )
 from .utils.email import check_email_throttle
 from .utils.exceptions import EmailSendError
-from apps.utils.s3_presigner import generate_presigned_url
 
 logger = logging.getLogger(__name__)
 

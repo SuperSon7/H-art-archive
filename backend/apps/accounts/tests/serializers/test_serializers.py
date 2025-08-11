@@ -4,9 +4,9 @@ from django.contrib.auth import get_user_model
 
 from apps.accounts.serializers import (
     LoginSerializer,
-    ProfileImageUploadSerializer,
     SocialLoginSerializer,
 )
+from apps.utils.serializers import S3ImageUploadSerializer
 
 User = get_user_model()
 @pytest.mark.django_db
@@ -60,7 +60,7 @@ class TestProfileImageUploadSerializer:
             'filename': 'profile.jpg',
             'content_type': 'image/jpeg'
         }
-        serializer = ProfileImageUploadSerializer(data=data)
+        serializer = S3ImageUploadSerializer(data=data)
         assert serializer.is_valid()
     
     def test_invalid_content_type(self):
@@ -69,7 +69,7 @@ class TestProfileImageUploadSerializer:
             'filename': 'profile.pdf',
             'content_type': 'application/pdf'
         }
-        serializer = ProfileImageUploadSerializer(data=data)
+        serializer = S3ImageUploadSerializer(data=data)
         assert not serializer.is_valid()
         assert 'non_field_errors' in serializer.errors
     
@@ -79,7 +79,7 @@ class TestProfileImageUploadSerializer:
             'filename': 'profile.jpg',
             'content_type': 'image/png'
         }
-        serializer = ProfileImageUploadSerializer(data=data)
+        serializer = S3ImageUploadSerializer(data=data)
         assert not serializer.is_valid()
     
     def test_missing_filename(self):
@@ -87,7 +87,7 @@ class TestProfileImageUploadSerializer:
         data = {
             'content_type': 'image/jpeg'
         }
-        serializer = ProfileImageUploadSerializer(data=data)
+        serializer = S3ImageUploadSerializer(data=data)
         assert not serializer.is_valid()
         assert 'filename' in serializer.errors
 

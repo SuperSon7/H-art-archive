@@ -8,6 +8,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from apps.artists.models import Artist
 
+
 def pytest_configure():
     load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), ".env.test"))
 User = get_user_model()
@@ -54,12 +55,17 @@ def authenticated_client(api_client, user):
 """ 아티스트 """
 @pytest.fixture
 def artist(active_user, db):
-
-    return Artist.objects.create(
+    Artist.objects.filter(user=active_user).delete()
+    
+    # 생성할 때부터 언어 지정
+    a = Artist.objects.language('ko').create(
         user=active_user,
         artist_name="test artist",
         artist_note="This is test artist"
     )
+    
+    return a
+
 @pytest.fixture
 def approved_artist(active_user, db):
     
@@ -67,8 +73,9 @@ def approved_artist(active_user, db):
         user=active_user,
         artist_name="approved artist",
         artist_note="This is approved artist",
-        is_approved=True,
+        approval_status = Artist.ApprovalStatus.APPROVED,
     )
+    
 @pytest.fixture
 def artist_client(api_client, active_user):
     refresh = RefreshToken.for_user(active_user)
@@ -77,6 +84,7 @@ def artist_client(api_client, active_user):
 
 @pytest.fixture
 def admin_user(db):
+    
     return User.objects.create_user(
         email='admin@example.com',
         username='admin',

@@ -40,7 +40,7 @@ class TestUserInfoViewSet:
         response = authenticated_client.get(url)
         assert response.status_code == status.HTTP_404_NOT_FOUND
     
-    @patch('apps.accounts.utils.s3_presigner.generate_presigned_url')
+    @patch('apps.utils.s3_presigner.generate_presigned_url')
     def test_generate_profile_image_url(self, mock_generate_url, authenticated_client, user):
         """프로필 이미지 업로드 URL 생성 테스트"""
         mock_generate_url.return_value = ('https://s3.amazonaws.com/presigned-url', 'user_uploads/1/test.jpg')

@@ -3,21 +3,20 @@ import logging
 from django.conf import settings
 from rest_framework import viewsets
 from rest_framework.decorators import action
-from rest_framework.exceptions import NotFound, PermissionDenied, ValidationError
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
-from rest_framework.request import Request
+from rest_framework.exceptions import PermissionDenied, ValidationError
+from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 
 from apps.artists.models import Artist
-from apps.accounts.models import User
 from apps.utils.permissions import IsSelf
-from .serializers import ArtistProfileSerializer, ArtistAdminSerializer
-from apps.utils.serializers import S3ImageUploadSerializer
 from apps.utils.s3_presigner import generate_presigned_url
+from apps.utils.serializers import S3ImageUploadSerializer
+
+from .serializers import ArtistAdminSerializer, ArtistProfileSerializer
 
 logger = logging.getLogger(__name__)
 
-class ArtistsProfileViewSet(viewsets.ModelViewSet):
+class ArtistProfileViewSet(viewsets.ModelViewSet):
     """
     ViewSet for managing artists.
     Provides CRUD operations and additional features like following artists.
@@ -33,8 +32,6 @@ class ArtistsProfileViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
         if self.action in ['create', 'update', 'partial_update', 'destroy']:
             return [IsAuthenticated(), IsSelf()]
-        elif self.action in ['approve', 'reject']:
-            return [IsAdminUser()]
         return [IsAuthenticated()]
 
     def create(self, request, *args, **kwargs):
@@ -47,19 +44,11 @@ class ArtistsProfileViewSet(viewsets.ModelViewSet):
             raise ValidationError("Only artist can create main image.")
         serializer.save(user=self.request.user)
     
-    def update(self, instance, validated_data):
-        lang = self.context["request"].LANGUAGE_CODE
-        instance.set_current_language(lang)
-        instance.artist_name = validated_data.get("artist_name", instance.artist_name)
-        instance.artist_note = validated_data.get("artist_note", instance.artist_note)
-        if "profile_image" in validated_data:
-            instance.profile_image = validated_data["profile_image"]
-        instance.save()
-        return instance
+
     
-    def perform_update(self, serializer):
-        print("✅ perform_update called with:", serializer.validated_data)
-        serializer.save()
+    # def perform_update(self, serializer):
+    #     print("✅ perform_update called with:", serializer.validated_data)
+    #     serializer.save()
     
     @action(detail=True, methods=["post"], url_path="main-image")
     def generate_main_image_url(self, request, pk=None) -> Response:
@@ -125,8 +114,8 @@ class ArtistsAdminViewSet(viewsets.ModelViewSet):
         artist = self.get_object()
         if artist.is_approved:
             raise ValidationError("Artist is already approved.")
-        artist.user.approval_status = User.ApprovalStatus.APPROVED
-        artist.user.save()
+        artist.approval_status = Artist.ApprovalStatus.APPROVED
+        artist.save()
         return Response({"detail": "Artist approved successfully."})
 
     
@@ -138,8 +127,8 @@ class ArtistsAdminViewSet(viewsets.ModelViewSet):
         """
         artist = self.get_object()
         if artist.is_approved: 
-            artist.user.approval_status = User.ApprovalStatus.REJECTED
-            artist.user.save()
+            artist.approval_status = Artist.ApprovalStatus.REJECTED
+            artist.save()
             return Response({"detail": "Artist rejected successfully."})
         else:
             return Response({"detail": "Artist is already rejected."}, status=400)

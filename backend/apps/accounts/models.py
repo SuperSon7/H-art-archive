@@ -47,20 +47,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     profile_image_url = models.URLField(blank=True, null=True)
     
     social_type = models.CharField(max_length=30, blank=True, null=True)
-    social_id = models.CharField(max_length=100, blank=True, null=True, unique=True)    
-    
-    class ApprovalStatus(models.TextChoices):
-        PENDING = 'PENDING', 'Pending'
-        APPROVED = 'APPROVED', 'Approved'
-        REJECTED = 'REJECTED', 'Rejected'
-
-    approval_status = models.CharField(
-        max_length=10,
-        choices=ApprovalStatus.choices,
-        default=ApprovalStatus.PENDING
-    )
-    is_approved = models.BooleanField(default=False) # 작가만 해당
-    
+    social_id = models.CharField(max_length=100, blank=True, null=True, unique=True)
     
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']

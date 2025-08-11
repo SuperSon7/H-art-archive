@@ -5,7 +5,20 @@ from parler.models import TranslatableModel, TranslatedFields
 
 from apps.interactions.models import PurchaseInquiry
 
+
 class Artist(TranslatableModel):
+    class ApprovalStatus(models.TextChoices):
+        PENDING = 'PENDING', 'Pending'
+        APPROVED = 'APPROVED', 'Approved'
+        REJECTED = 'REJECTED', 'Rejected'
+
+    approval_status = models.CharField(
+        max_length=10,
+        choices=ApprovalStatus.choices,
+        default=ApprovalStatus.PENDING,
+        db_index=True
+    )    
+    
     translations = TranslatedFields(
         artist_name = models.CharField(max_length=150, db_index=True, help_text="작가명"),
         artist_note = models.TextField(blank=True, verbose_name="작가노트", help_text="작가 소개 및 작품 세계관")
@@ -47,9 +60,9 @@ class Artist(TranslatableModel):
     
     #TODO: service layer로 분리 고려 
     @property
-    def is_approved(self):
+    def is_approved(self) -> bool:
         """작가 승인 상태"""
-        return self.user.approval_status == 'APPROVED'
+        return self.approval_status == self.ApprovalStatus.APPROVED
     
     @property
     def is_currently_featured(self):

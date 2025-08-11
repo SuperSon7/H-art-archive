@@ -11,9 +11,9 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 import os
-import boto3
 from pathlib import Path
 
+import boto3
 from dotenv import load_dotenv
 
 load_dotenv() 
@@ -142,14 +142,15 @@ USE_TZ = True
 # Parler를 위한 언어 설정
 PARLER_LANGUAGES = {
     None: (
-        {'code': 'ko',}, # 한국어
-        {'code': 'en',}, # 영어
+        {'code': 'ko',}, 
+        {'code': 'en',}, 
     ),
     'default': {
-        'fallback': 'ko',  # 번역이 없을 경우, 한국어를 기본으로 보여줌
+        'fallbacks': ['ko'],  # 번역이 없을 경우, 한국어를 기본으로 보여줌
         'hide_untranslated': False, # 번역이 없어도 내용을 보여줄지 여부
     }
 }
+PARLER_DEFAULT_LANGUAGE_CODE = 'ko'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
@@ -219,6 +220,7 @@ AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
 AWS_REGION = os.environ.get("AWS_REGION", "ap-northeast-2")
 AWS_S3_BUCKET_NAME = os.environ.get("AWS_S3_BUCKET_NAME")
 AWS_S3_ARTWORK_BUCKET = os.environ.get("AWS_S3_ARTWORK_BUCKET")
+AWS_S3_PROFILE_BUCKET = os.environ.get("AWS_S3_PROFILE_BUCKET")
 
 s3_client = boto3.client(
     's3',
