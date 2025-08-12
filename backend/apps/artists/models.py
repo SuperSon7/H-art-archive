@@ -7,6 +7,18 @@ from apps.interactions.models import PurchaseInquiry
 
 
 class Artist(TranslatableModel):
+    class ApprovalStatus(models.TextChoices):
+        PENDING = 'PENDING', 'Pending'
+        APPROVED = 'APPROVED', 'Approved'
+        REJECTED = 'REJECTED', 'Rejected'
+
+    approval_status = models.CharField(
+        max_length=10,
+        choices=ApprovalStatus.choices,
+        default=ApprovalStatus.PENDING,
+        db_index=True
+    )    
+    
     translations = TranslatedFields(
         artist_name = models.CharField(max_length=150, db_index=True, help_text="작가명"),
         artist_note = models.TextField(blank=True, verbose_name="작가노트", help_text="작가 소개 및 작품 세계관")
@@ -17,11 +29,13 @@ class Artist(TranslatableModel):
         on_delete=models.CASCADE,
         related_name='artist_profile'
     )
-
-    profile_image = models.ImageField(upload_to='artists/profile/', blank=True, null=True, help_text="프로필 이미지")
+    
+    # 대표작 이미지
+    main_image = models.ImageField(
+        upload_to='artists/profile/', blank=True, null=True, help_text="대표작품 이미지"
+        )
     artwork_count = models.PositiveIntegerField(default=0, help_text="등록 작품 수")
     follower_count = models.PositiveBigIntegerField(default=0, help_text="팔로워 수")
-    
     
     is_featured = models.BooleanField(
         default=False,
@@ -40,16 +54,15 @@ class Artist(TranslatableModel):
             models.Index(fields=['follower_count']),
             models.Index(fields=['is_featured'])
         ]
-
-    
     
     def __str__(self):
         return self.safe_translation_getter('artist_name', any_language=True) or f"Artist #{self.pk}"
     
+    #TODO: service layer로 분리 고려 
     @property
-    def is_approved(self):
+    def is_approved(self) -> bool:
         """작가 승인 상태"""
-        return self.user.user_type == 'ARTIST' and self.user.is_approved
+        return self.approval_status == self.ApprovalStatus.APPROVED
     
     @property
     def is_currently_featured(self):
@@ -66,17 +79,21 @@ class Artist(TranslatableModel):
             ).count()
             self.save(update_fields=['artwork_count'])
     
-            
     @classmethod
     def get_featured_artists(cls):
+        """ 
+        Retrieve featured artists from cache or database.
+        THis method caches the result for 15 minutes to reduce database load.
+        """
         cache_key = 'featured_artists'
         featured = cache.get(cache_key)
         
         if featured is None:
             featured = list(cls.objects.filter(
                 is_featured=True,
-                is_active=True,
-                user__is_approved=True
+                user__is_active=True,
+                user__is_approved=True,
+                user__UserType='ARTIST'
             ).select_related('user'))
             cache.set(cache_key, featured, 60 * 15)
         

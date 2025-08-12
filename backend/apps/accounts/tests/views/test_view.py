@@ -1,106 +1,102 @@
 from unittest.mock import patch
 
+import pytest
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 from rest_framework import status
 
 User = get_user_model()
+
+
+@pytest.mark.unit
 class TestUserInfoViewSet:
-    
     def test_retrieve_own_profile(self, authenticated_client, user):
         """본인 프로필 조회 테스트"""
-        url = reverse('user-detail', kwargs={'pk': user.id})
+        url = reverse("user-detail", kwargs={"pk": user.id})
         response = authenticated_client.get(url)
         assert response.status_code == status.HTTP_200_OK
-        assert response.data['email'] == user.email
-    
+        assert response.data["email"] == user.email
+
     def test_retrieve_other_user_profile(self, authenticated_client):
         """다른 사용자 프로필 조회 시도 테스트"""
         other_user = User.objects.create_user(
-            email='other@example.com',
-            username='otheruser',
-            password='otherpass123'
+            email="other@example.com", username="otheruser", password="otherpass123"
         )
-        url = reverse('user-detail', kwargs={'pk': other_user.id})
+        url = reverse("user-detail", kwargs={"pk": other_user.id})
         response = authenticated_client.get(url)
         assert response.status_code == status.HTTP_403_FORBIDDEN
-    
+
     def test_update_own_profile(self, authenticated_client, user):
         """본인 프로필 수정 테스트"""
-        url = reverse('user-detail', kwargs={'pk': user.id})
-        data = {'username': 'Updated Name'}
+        url = reverse("user-detail", kwargs={"pk": user.id})
+        data = {"username": "Updated Name"}
         response = authenticated_client.put(url, data)
         assert response.status_code == status.HTTP_200_OK
         user.refresh_from_db()
-        assert user.username == 'Updated Name'
-    
+        assert user.username == "Updated Name"
+
     def test_nonexistent_user(self, authenticated_client):
         """존재하지 않는 사용자 조회 테스트"""
-        url = reverse('user-detail', kwargs={'pk': 99999})
+        url = reverse("user-detail", kwargs={"pk": 99999})
         response = authenticated_client.get(url)
         assert response.status_code == status.HTTP_404_NOT_FOUND
-    
-    @patch('apps.accounts.utils.s3_presigner.generate_presigned_url')
+
+    @patch("apps.utils.s3_presigner.generate_presigned_url")
     def test_generate_profile_image_url(self, mock_generate_url, authenticated_client, user):
         """프로필 이미지 업로드 URL 생성 테스트"""
-        mock_generate_url.return_value = ('https://s3.amazonaws.com/presigned-url', 'user_uploads/1/test.jpg')
-        
-        url = reverse('user-generate-profile-image-url', kwargs={'pk': user.id})
-        data = {
-            'filename': 'test.jpg',
-            'content_type': 'image/jpeg'
-        }
+        mock_generate_url.return_value = (
+            "https://s3.amazonaws.com/presigned-url",
+            "user_uploads/1/test.jpg",
+        )
+
+        url = reverse("user-generate-profile-image-url", kwargs={"pk": user.id})
+        data = {"filename": "test.jpg", "content_type": "image/jpeg"}
         response = authenticated_client.post(url, data)
         assert response.status_code == status.HTTP_200_OK
-        assert 'upload_url' in response.data
-        assert 's3_key' in response.data
-    
+        assert "upload_url" in response.data
+        assert "s3_key" in response.data
+
     def test_save_profile_image(self, authenticated_client, user):
         """프로필 이미지 저장 테스트"""
-        url = reverse('user-save-profile-image', kwargs={'pk': user.id})
-        data = {'key': f'user_uploads/{user.id}/test.jpg'}
+        url = reverse("user-save-profile-image", kwargs={"pk": user.id})
+        data = {"key": f"user_uploads/{user.id}/test.jpg"}
         response = authenticated_client.post(url, data)
         assert response.status_code == status.HTTP_200_OK
         user.refresh_from_db()
         assert user.profile_image_url is not None
-    
+
     def test_save_profile_image_invalid_key(self, authenticated_client, user):
         """잘못된 S3 키로 프로필 이미지 저장 시도 테스트"""
-        url = reverse('user-save-profile-image', kwargs={'pk': user.id})
-        data = {'key': 'user_uploads/999/test.jpg'}  # 다른 사용자 경로
+        url = reverse("user-save-profile-image", kwargs={"pk": user.id})
+        data = {"key": "user_uploads/999/test.jpg"}  # 다른 사용자 경로
         response = authenticated_client.post(url, data)
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
+
+@pytest.mark.unit
 class TestSocialLoginView:
-    
-    @patch('apps.accounts.views.login_with_social')
+    @patch("apps.accounts.views.login_with_social")
     def test_successful_social_login(self, mock_login, api_client):
         """성공적인 소셜 로그인 테스트"""
         mock_login.return_value = {
-            'access': 'access_token',
-            'refresh': 'refresh_token',
-            'user_type': 'artist'
+            "access": "access_token",
+            "refresh": "refresh_token",
+            "user_type": "artist",
         }
-        
-        url = reverse('social-login')
-        data = {
-            'code': 'auth_code_123',
-            'provider': 'google'
-        }
+
+        url = reverse("social-login")
+        data = {"code": "auth_code_123", "provider": "google"}
         response = api_client.post(url, data)
         assert response.status_code == status.HTTP_200_OK
-        assert 'access' in response.data
-        assert 'refresh' in response.data
-    
-    @patch('apps.accounts.oauth.login_with_social')
+        assert "access" in response.data
+        assert "refresh" in response.data
+
+    @patch("apps.accounts.oauth.login_with_social")
     def test_failed_social_login(self, mock_login, api_client):
         """실패한 소셜 로그인 테스트"""
         mock_login.side_effect = Exception("OAuth error")
-        
-        url = reverse('social-login')
-        data = {
-            'code': 'invalid_code',
-            'provider': 'google'
-        }
+
+        url = reverse("social-login")
+        data = {"code": "invalid_code", "provider": "google"}
         response = api_client.post(url, data)
         assert response.status_code == status.HTTP_400_BAD_REQUEST

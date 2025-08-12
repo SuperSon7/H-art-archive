@@ -14,12 +14,12 @@ colorama==0.4.6
 cryptography==45.0.5
 Django==5.2.4
 django-cors-headers==4.7.0
-django-extensions==4.1  ← *(선택적: 운영에서 shell/관리툴 쓰는 경우만)*
+django-extensions==4.1  
 django-parler==2.3
+django-parler-rest==2.2
 django-redis==6.0.0
 djangorestframework==3.16.0
 djangorestframework_simplejwt==5.5.1
-drf-spectacular==0.28.0  ← *(선택적: 운영 중 API 문서 제공하는 경우만)*
 httpx==0.28.1
 idna==3.10
 Jinja2==3.1.6

@@ -23,7 +23,7 @@ class Follow(models.Model):
         ordering = ['-created_at']
     
     def __str__(self):
-        return f"{self.follower.username} follows {self.following.artist_name}"
+        return f"{self.follower.username} follows {self.following.safe_translation_getter('artist_name', any_language=True)}"
 
 
 class Wishlist(models.Model):

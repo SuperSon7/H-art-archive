@@ -11,10 +11,12 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from apps.utils.s3_presigner import generate_presigned_url
+from apps.utils.serializers import S3ImageUploadSerializer
+
 from .oauth import login_with_social
 from .serializers import (
     LoginSerializer,
-    ProfileImageUploadSerializer,
     SendVerificationEmailSerializer,
     SignUpSerializer,
     SocialLoginSerializer,
@@ -30,7 +32,6 @@ from .token import (
 )
 from .utils.email import check_email_throttle
 from .utils.exceptions import EmailSendError
-from .utils.s3_presigner import generate_presigned_url
 
 logger = logging.getLogger(__name__)
 
@@ -47,7 +48,7 @@ class SignUpView(APIView):
             "user_id": user.id,
             "verification_required": user.is_active is False,
         }, status=status.HTTP_201_CREATED)
-            
+
 class SendVerificationEmailView(APIView):
     """Sending Veryfication Email for Singup"""
     def post(self, request : Request) -> Response:
@@ -255,7 +256,7 @@ class UserInfoViewSet(viewsets.ViewSet):
         if request.user.id != int(pk):
             raise PermissionDenied("You can only upload your own profile image")
         
-        serializer = ProfileImageUploadSerializer(data=request.data)
+        serializer = S3ImageUploadSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         try:
@@ -329,3 +330,5 @@ class SocialLoginView(APIView):
         except Exception as e:
             logger.error(f"Social login failed: {str(e)}")
             raise ValidationError("Social login failed")
+        
+    #TODO: Implement follow and unfollow funcitonality

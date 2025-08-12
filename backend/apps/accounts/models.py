@@ -34,7 +34,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     user_type = models.CharField(max_length=20, choices=UserType.choices, default=UserType.COLLECTOR)
     
     is_active = models.BooleanField(default=False)
-    is_approved = models.BooleanField(default=False) # 작가만 해당
     is_staff = models.BooleanField(default=False)
     
     created_at = models.DateTimeField(auto_now_add=True)
@@ -48,7 +47,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     profile_image_url = models.URLField(blank=True, null=True)
     
     social_type = models.CharField(max_length=30, blank=True, null=True)
-    social_id = models.CharField(max_length=100, blank=True, null=True, unique=True)    
+    social_id = models.CharField(max_length=100, blank=True, null=True, unique=True)
     
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']

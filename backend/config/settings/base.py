@@ -15,7 +15,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-load_dotenv() 
+load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -32,10 +32,10 @@ DEBUG = os.environ.get("DEBUG", "False") == "True"
 ALLOWED_HOSTS = []
 
 
-AUTH_USER_MODEL = 'accounts.User'
+AUTH_USER_MODEL = "accounts.User"
 
 AUTHENTICATION_BACKENDS = [
-    'apps.accounts.backends.EmailBackend',
+    "apps.accounts.backends.EmailBackend",
 ]
 
 # Application definition
@@ -47,22 +47,19 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    
-    'apps.accounts',
-    'apps.artworks',
-    'apps.artists',
-    'apps.ai_integration',
-    'apps.interactions',
-
-    'rest_framework',
-    'drf_spectacular',
-    'corsheaders',
-    'parler',
+    "apps.accounts",
+    "apps.artworks",
+    "apps.artists",
+    "apps.ai_integration",
+    "apps.interactions",
+    "rest_framework",
+    "drf_spectacular",
+    "corsheaders",
+    "parler",
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
-    
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -97,13 +94,13 @@ WSGI_APPLICATION = "config.wsgi.application"
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('DB_NAME'),         
-        'USER': os.environ.get('DB_USER'),               
-        'PASSWORD': os.environ.get('DB_PASSWORD'),        
-        'HOST': os.environ.get('DB_HOST'),           
-        'PORT': os.environ.get('DB_PORT', '5432'),         
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.environ.get("DB_NAME"),
+        "USER": os.environ.get("DB_USER"),
+        "PASSWORD": os.environ.get("DB_PASSWORD"),
+        "HOST": os.environ.get("DB_HOST"),
+        "PORT": os.environ.get("DB_PORT", "5432"),
     }
 }
 
@@ -141,14 +138,19 @@ USE_TZ = True
 # Parler를 위한 언어 설정
 PARLER_LANGUAGES = {
     None: (
-        {'code': 'ko',}, # 한국어
-        {'code': 'en',}, # 영어
+        {
+            "code": "ko",
+        },
+        {
+            "code": "en",
+        },
     ),
-    'default': {
-        'fallback': 'ko',  # 번역이 없을 경우, 한국어를 기본으로 보여줌
-        'hide_untranslated': False, # 번역이 없어도 내용을 보여줄지 여부
-    }
+    "default": {
+        "fallbacks": ["ko"],  # 번역이 없을 경우, 한국어를 기본으로 보여줌
+        "hide_untranslated": False,  # 번역이 없어도 내용을 보여줄지 여부
+    },
 }
+PARLER_DEFAULT_LANGUAGE_CODE = "ko"
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
@@ -162,9 +164,9 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Version management
 REST_FRAMEWORK = {
-    'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.URLPathVersioning',
-    'DEFAULT_VERSION': 'v1',
-    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    "DEFAULT_VERSIONING_CLASS": "rest_framework.versioning.URLPathVersioning",
+    "DEFAULT_VERSION": "v1",
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "apps.accounts.authentication.JWTAuthentication",
         "rest_framework_simplejwt.authentication.JWTAuthentication",
@@ -172,14 +174,16 @@ REST_FRAMEWORK = {
 }
 
 SPECTACULAR_SETTINGS = {
-    'TITLE': 'H-ART API 문서',
-    'DESCRIPTION': '홍익대학교 졸업 작품 아카이빙 플랫폼',
-    'VERSION': '1.0.0',
-    'SERVE_INCLUDE_SCHEMA': False,
+    "TITLE": "H-ART API 문서",
+    "DESCRIPTION": "홍익대학교 졸업 작품 아카이빙 플랫폼",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
 }
 
 # Email Verification Config
-EMAIL_VERIFICATION_TOKEN_EXPIRE_MINUTES = int(os.environ.get("EMAIL_VERIFICATION_TOKEN_EXPIRE_MINUTES", 30))
+EMAIL_VERIFICATION_TOKEN_EXPIRE_MINUTES = int(
+    os.environ.get("EMAIL_VERIFICATION_TOKEN_EXPIRE_MINUTES", 30)
+)
 JWT_ALGORITHM = os.environ.get("JWT_ALGORITHM", "HS256")
 
 FRONTEND_VERIFY_URL = os.environ.get("FRONTEND_VERIFY_URL", "http://localhost:3000/verify-email")
@@ -193,16 +197,16 @@ EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
 DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", "noreply@artplatform.com")
 
-#Redis 설정
+# Redis 설정
 REDIS_CACHE_URL = os.environ.get("REDIS_CACHE_URL", "redis://127.0.0.1:6379/1")
 
 CACHES = {
-    'default': {
-        'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': REDIS_CACHE_URL,
-        'OPTIONS': {
-            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-        }
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": REDIS_CACHE_URL,
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        },
     }
 }
 
@@ -217,6 +221,11 @@ AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
 AWS_REGION = os.environ.get("AWS_REGION", "ap-northeast-2")
 AWS_S3_BUCKET_NAME = os.environ.get("AWS_S3_BUCKET_NAME")
+AWS_S3_ARTWORK_BUCKET = os.environ.get("AWS_S3_ARTWORK_BUCKET")
+AWS_S3_PROFILE_BUCKET = os.environ.get("AWS_S3_PROFILE_BUCKET")
+
+AWS_ENDPOINT = (os.environ.get("AWS_ENDPOINT"),)  # LocalStack!
+AWS_PRESIGNED_EXPIRES = int(os.getenv("AWS_PRESIGNED_EXPIRES", "600"))
 
 # GOOGLE
 GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID")
@@ -225,4 +234,6 @@ GOOGLE_REDIRECT_URI = os.environ.get("GOOGLE_REDIRECT_URI")
 
 # Token
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.environ.get("ACCESS_TOKEN_EXPIRE_MINUTES", 60))
-REFRESH_TOKEN_EXPIRE_MINUTES = int(os.environ.get("REFRESH_TOKEN_EXPIRE_MINUTES", 10080))  # 24 hours
+REFRESH_TOKEN_EXPIRE_MINUTES = int(
+    os.environ.get("REFRESH_TOKEN_EXPIRE_MINUTES", 10080)
+)  # 24 hours

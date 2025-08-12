@@ -6,11 +6,14 @@ from dotenv import load_dotenv
 from rest_framework.test import APIClient
 from rest_framework_simplejwt.tokens import RefreshToken
 
+from apps.artists.models import Artist
+
 
 def pytest_configure():
     load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), ".env.test"))
 User = get_user_model()
 
+""" 유저 """
 @pytest.fixture
 def api_client():
     return APIClient()
@@ -21,7 +24,7 @@ def user(db):
         email='test@example.com',
         username='testuser',
         password='testuser123',
-        user_type='artist'
+        user_type='ARTIST'
     )
 
 @pytest.fixture
@@ -39,12 +42,60 @@ def active_user(db):
         email='active@example.com',
         username='activeuser',
         password='testuser123',
-        user_type='artist',
+        user_type='ARTIST',
         is_active=True
     )
     
 @pytest.fixture
 def authenticated_client(api_client, user):
     refresh = RefreshToken.for_user(user)
+    api_client.credentials(HTTP_AUTHORIZATION=f'Bearer {refresh.access_token}')
+    return api_client
+
+""" 아티스트 """
+@pytest.fixture
+def artist(active_user, db):
+    Artist.objects.filter(user=active_user).delete()
+    
+    # 생성할 때부터 언어 지정
+    a = Artist.objects.language('ko').create(
+        user=active_user,
+        artist_name="test artist",
+        artist_note="This is test artist"
+    )
+    
+    return a
+
+@pytest.fixture
+def approved_artist(active_user, db):
+    
+    return Artist.objects.create(
+        user=active_user,
+        artist_name="approved artist",
+        artist_note="This is approved artist",
+        approval_status = Artist.ApprovalStatus.APPROVED,
+    )
+    
+@pytest.fixture
+def artist_client(api_client, active_user):
+    refresh = RefreshToken.for_user(active_user)
+    api_client.credentials(HTTP_AUTHORIZATION=f'Bearer {refresh.access_token}')
+    return api_client
+
+@pytest.fixture
+def admin_user(db):
+    
+    return User.objects.create_user(
+        email='admin@example.com',
+        username='admin',
+        password='admin1234',
+        user_type='ARTIST',
+        is_active=True,
+        is_staff=True
+    )
+    
+@pytest.fixture
+def admin_client(api_client, admin_user):
+    refresh = RefreshToken.for_user(admin_user)
     api_client.credentials(HTTP_AUTHORIZATION=f'Bearer {refresh.access_token}')
     return api_client

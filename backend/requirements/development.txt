@@ -21,6 +21,7 @@ Django==5.2.4
 django-cors-headers==4.7.0
 django-extensions==4.1
 django-parler==2.3
+django-parler-rest==2.2
 django-redis==6.0.0
 djangorestframework==3.16.0
 djangorestframework_simplejwt==5.5.1
@@ -43,6 +44,7 @@ moto==5.1.9
 packaging==25.0
 pillow==11.3.0
 pluggy==1.6.0
+pre-commit==4.3.0
 prompt_toolkit==3.0.51
 psycopg2-binary==2.9.10
 py-partiql-parser==0.6.1
