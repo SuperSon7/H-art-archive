@@ -1,10 +1,17 @@
 import logging
 
-import boto3
 from django.conf import settings
 
+from .s3_client import get_s3_client
+
 logger = logging.getLogger(__name__)
-def generate_presigned_url(user_id: int, filename: str, content_type: str)-> str:
+
+
+def s3_key_for_user_upload(user_id: int, filename: str) -> str:
+    return f"user_uploads/{user_id}/{filename}"
+
+
+def generate_presigned_url(user_id: int, filename: str, content_type: str) -> tuple[str, str]:
     """Generate a presigned URL for uploading a file to S3.
 
     Args:
@@ -15,9 +22,9 @@ def generate_presigned_url(user_id: int, filename: str, content_type: str)-> str
     Returns:
         str: A presigned URL of S3
     """
+    s3 = get_s3_client()
+    key = s3_key_for_user_upload(user_id, filename)
     try:
-        s3 = boto3.client("s3", region_name=settings.AWS_REGION)
-        key = f"user_uploads/{user_id}/{filename}"
         url = s3.generate_presigned_url(
             ClientMethod="put_object",
             Params={
@@ -25,7 +32,7 @@ def generate_presigned_url(user_id: int, filename: str, content_type: str)-> str
                 "Key": key,
                 "ContentType": content_type,
             },
-            ExpiresIn=600,
+            ExpiresIn=settings.AWS_PRESIGNED_EXPIRES,
         )
         return url, key
     except Exception as e:
