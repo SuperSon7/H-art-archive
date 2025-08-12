@@ -1,5 +1,6 @@
 from unittest.mock import patch
 
+import pytest
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 from rest_framework import status
@@ -7,6 +8,7 @@ from rest_framework import status
 User = get_user_model()
 
 
+@pytest.mark.unit
 class TestUserInfoViewSet:
     def test_retrieve_own_profile(self, authenticated_client, user):
         """본인 프로필 조회 테스트"""
@@ -71,6 +73,7 @@ class TestUserInfoViewSet:
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
 
+@pytest.mark.unit
 class TestSocialLoginView:
     @patch("apps.accounts.views.login_with_social")
     def test_successful_social_login(self, mock_login, api_client):
