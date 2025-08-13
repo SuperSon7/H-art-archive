@@ -41,6 +41,18 @@ services:
     depends_on:
       - redis
       # - web
+  localstack:
+    image: localstack/localstack:3
+    ports:
+      - "4566:4566"  # gateway
+    environment:
+      - SERVICES=s3
+      - DEBUG=1
+    volumes:
+      - "./.localstack:/var/lib/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    networks:
+      - backend-net
 
 volumes:
   test_postgre_data:
