@@ -13,16 +13,16 @@ from .views import (
 )
 
 router = DefaultRouter()
-router.register(r'users', UserInfoViewSet, basename='user')
+router.register(r"user", UserInfoViewSet, basename="user")
 
 urlpatterns = [
     path("signup/", SignUpView.as_view(), name="signup"),
-    path('send-verification/', SendVerificationEmailView.as_view(), name='send_verification'),
-    path('verify-email/', VerifyEmailView.as_view(), name='verify_email'),
-    path('login/', LoginView.as_view(), name='login'),
-    path('logout/', LogoutView.as_view(), name='logout'),
-    path('social-login/', SocialLoginView.as_view(), name='social-login'),
-    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path("send-verification/", SendVerificationEmailView.as_view(), name="send_verification"),
+    path("verify-email/", VerifyEmailView.as_view(), name="verify_email"),
+    path("login/", LoginView.as_view(), name="login"),
+    path("logout/", LogoutView.as_view(), name="logout"),
+    path("social-login/", SocialLoginView.as_view(), name="social-login"),
+    path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
 ]
 
 urlpatterns += router.urls
