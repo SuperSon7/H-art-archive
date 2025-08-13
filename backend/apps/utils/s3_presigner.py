@@ -1,4 +1,5 @@
 import logging
+from uuid import uuid4
 
 from django.conf import settings
 
@@ -7,11 +8,20 @@ from .s3_client import get_s3_client
 logger = logging.getLogger(__name__)
 
 
-def s3_key_for_user_upload(user_id: int, filename: str) -> str:
-    return f"user_uploads/{user_id}/{filename}"
+def s3_key_for_upload(category: str, object_id: int, ext: str, subdir: str | None = None) -> str:
+    """Generate an S3 key for a given category/object."""
+    filename = f"{uuid4().hex}{ext}"
+    parts = [category, str(object_id)]
+    if subdir:
+        parts.append(subdir)
+    parts.append(filename)
+    return "/".join(parts)
 
 
-def generate_presigned_url(user_id: int, filename: str, content_type: str) -> tuple[str, str]:
+# boto의 generate_presigned_url 과 혼동 방지를 위해 create_presigned_url 로 변경
+def create_presigned_url(
+    bucket: str, key: str, content_type: str, expires: int | None = None
+) -> tuple[str, str]:
     """Generate a presigned URL for uploading a file to S3.
 
     Args:
@@ -23,16 +33,15 @@ def generate_presigned_url(user_id: int, filename: str, content_type: str) -> tu
         str: A presigned URL of S3
     """
     s3 = get_s3_client()
-    key = s3_key_for_user_upload(user_id, filename)
     try:
         url = s3.generate_presigned_url(
             ClientMethod="put_object",
             Params={
-                "Bucket": settings.AWS_S3_BUCKET_NAME,
+                "Bucket": bucket,
                 "Key": key,
                 "ContentType": content_type,
             },
-            ExpiresIn=settings.AWS_PRESIGNED_EXPIRES,
+            ExpiresIn=expires or settings.AWS_PRESIGNED_EXPIRES,
         )
         return url, key
     except Exception as e:

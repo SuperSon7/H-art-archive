@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 import pytest
 from django.contrib.auth import get_user_model
 from django.urls import reverse
@@ -56,7 +58,31 @@ class TestArtistProfileViewSet:
         # assert artist.artist_note == 'Updated artist note'
 
     def test_nonexistent_artist(self, authenticated_client):
-        """nonexistent artitst rerival test"""
+        """nonexistent artist retrieval test"""
         url = reverse("artists-detail", kwargs={"pk": 99999})
         response = authenticated_client.get(url)
         assert response.status_code == status.HTTP_404_NOT_FOUND
+
+    @patch("apps.utils.s3_presigner.create_presigned_url")
+    def test_generate_main_image_url(self, mock_generate_url, artist_client, artist):
+        """main image upload url generation test"""
+        mock_generate_url.return_value = (
+            "https://s3.amazonaws.com/presigned-url",
+            f"profiles/{artist.user.id}/artist_main/test.jpg",
+        )
+
+        url = reverse("artists-main-image-presigned")
+        data = {"filename": "test.jpg", "content_type": "image/jpeg"}
+        response = artist_client.post(url, data)
+        assert response.status_code == status.HTTP_200_OK
+        assert "upload_url" in response.data
+        assert "s3_key" in response.data
+
+    def test_save_main_image(self, artist_client, artist):
+        """test for saving main image"""
+        url = reverse("artists-main-image")
+        data = {"key": f"profiles/{artist.user.id}/artist_main/test.jpg"}
+        response = artist_client.post(url, data)
+        assert response.status_code == status.HTTP_200_OK
+        artist.refresh_from_db()
+        assert artist.main_image_url is not None
