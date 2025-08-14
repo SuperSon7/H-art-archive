@@ -89,6 +89,13 @@ jobs:
             --abort-on-container-exit \
             --exit-code-from web
 
+      - name: Show Postgres logs
+        if: always()  # 실패해도 실행
+        run: |
+          docker compose \
+            -f docker-compose.test.yml \
+            -f docker-compose.ci.yml \
+            logs --tail=200 test_db
 
 # 프론트엔드 테스트
   frontend-test:
