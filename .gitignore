@@ -122,3 +122,9 @@ coverage/
 .localstack/
 # LocalStack docker volume data
 localstack_volume/
+
+# Celery beat runtime files
+celerybeat-schedule
+celerybeat-schedule.*
+celerybeat.pid
+*.pid

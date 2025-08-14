@@ -3,16 +3,25 @@ services:
     build:
       context: .
       dockerfile: docker/web/Dockerfile
-    command: python manage.py runserver 0.0.0.0:8080
     volumes:
       - .:/app
     ports:
       - "${WEB_PORT:-8080}:8080"
     depends_on:
-      - test_db
-      - redis
+      test_db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.settings.test
+      - PYTEST_MARKEXPR=${PYTEST_MARKEXPR:-}
     env_file:
       - .env.test
+    command: >
+      sh -c '
+        python manage.py runserver 0.0.0.0:8080 &
+        pytest -q ${PYTEST_MARKEXPR:+-m "$PYTEST_MARKEXPR"}
+      '
   test_db:
     image: postgres:15
     environment:
@@ -25,22 +34,36 @@ services:
       - test_postgre_data:/var/lib/postgresql/data
     env_file:
       - .env.test
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
   redis:
-    image: redis:latest
+    image: redis:7
     ports:
       - "${REDIS_PORT:-6379}:6379"
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
   celery:
     build:
       context: .
       dockerfile: docker/celery/Dockerfile
-    command: celery -A config worker --loglevel=info
+    command: >
+      sh -c '
+        celery -A config worker --loglevel=info &
+        celery -A config beat --loglevel=info
+      '
     volumes:
       - .:/app
     env_file:
       - .env
     depends_on:
-      - redis
-      # - web
+      redis:
+        condition: service_healthy
   localstack:
     image: localstack/localstack:3
     ports:
@@ -51,8 +74,6 @@ services:
     volumes:
       - "./.localstack:/var/lib/localstack"
       - "/var/run/docker.sock:/var/run/docker.sock"
-    networks:
-      - backend-net
 
 volumes:
   test_postgre_data:
