@@ -20,7 +20,7 @@ services:
     command: >
       sh -c '
         python manage.py runserver 0.0.0.0:8080 &
-        pytest -q -p no:pytest_cov ${PYTEST_MARKEXPR:+-m "$PYTEST_MARKEXPR"}
+        pytest -q -o addopts="" -p no:pytest_cov ${PYTEST_MARKEXPR:+-m "$PYTEST_MARKEXPR"}
       '
   test_db:
     image: postgres:15
