@@ -32,7 +32,7 @@ services:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
-      - "5433:${DB_PORT:-5432}"
+      - "5432:${DB_PORT:-5432}"
     volumes:
       - test_postgre_data:/var/lib/postgresql/data
     env_file:
