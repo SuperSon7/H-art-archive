@@ -73,8 +73,8 @@ jobs:
 
       - name: Run Unit Tests (on Push to features/bugfix branches)
         env:
-          GITHUB_REPOSITORY_OWNER: ${{ github.repository_owner }}
-          COMPOSE_PROJECT_NAME: ${{ github.repository }}
+          GITHUB_REPOSITORY_OWNER: superson7
+          COMPOSE_PROJECT_NAME: h-art-archive
           IMAGE_TAG: ${{ github.sha }}
           PYTEST_MARKEXPR: ${{ github.event_name == 'pull_request' && '' || 'unit and not slow' }}
 
