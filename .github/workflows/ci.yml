@@ -62,14 +62,14 @@ jobs:
 
       - name: Copy template and override secrets
         run: |
-          cp .env.test.template .env.test
-          echo "SECRET_KEY=${{ secrets.TEST_SECRET_KEY }}" >> .env.test
-          echo "DB_PASSWORD=${{ secrets.TEST_DB_PASSWORD }}" >> .env.test
-          echo "EMAIL_HOST_PASSWORD=${{ secrets.TEST_EMAIL_HOST_PASSWORD }}" >> .env.test
-          echo "EMAIL_HOST_USER=${{ secrets.TEST_EMAIL_HOST_USER }}" >> .env.test
-          echo "DB_HOST=${{ secrets.TEST_DB_HOST }}" >> .env.test
-          echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}" >> .env.test
-          echo "S3_SECRET_ACCESS_KEY=${{ secrets.S3_SECRET_ACCESS_KEY }}" >> .env.test
+          cp .env.test.template .env
+          echo "SECRET_KEY=${{ secrets.TEST_SECRET_KEY }}" >> .env
+          echo "DB_PASSWORD=${{ secrets.TEST_DB_PASSWORD }}" >> .env
+          echo "EMAIL_HOST_PASSWORD=${{ secrets.TEST_EMAIL_HOST_PASSWORD }}" >> .env
+          echo "EMAIL_HOST_USER=${{ secrets.TEST_EMAIL_HOST_USER }}" >> .env
+          echo "DB_HOST=${{ secrets.TEST_DB_HOST }}" >> .env
+          echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}" >> .env
+          echo "S3_SECRET_ACCESS_KEY=${{ secrets.S3_SECRET_ACCESS_KEY }}" >> .env
 
       - name: Run Unit Tests (on Push to features/bugfix branches)
         env:
