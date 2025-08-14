@@ -91,11 +91,16 @@ jobs:
 
       - name: Show Postgres logs
         if: always()  # 실패해도 실행
+        env:
+          GITHUB_REPOSITORY_OWNER_LOWER: superson7
+          COMPOSE_PROJECT_NAME: h-art-archive
+          IMAGE_TAG: ${{ github.sha }}
         run: |
           docker compose \
             -f docker-compose.test.yml \
             -f docker-compose.ci.yml \
             logs --tail=200 test_db
+
 
 # 프론트엔드 테스트
   frontend-test:
