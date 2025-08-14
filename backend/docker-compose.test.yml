@@ -15,6 +15,7 @@ services:
     environment:
       - DJANGO_SETTINGS_MODULE=config.settings.test
       - PYTEST_MARKEXPR=${PYTEST_MARKEXPR:-}
+      - COVERAGE_FILE=/tmp/.coverage
     env_file:
       - .env
     command: >
