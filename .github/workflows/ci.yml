@@ -71,7 +71,7 @@ jobs:
           echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}" >> .env
           echo "S3_SECRET_ACCESS_KEY=${{ secrets.S3_SECRET_ACCESS_KEY }}" >> .env
 
-      - name: Run Unit Tests (on Push to features/bugfix branches)
+      - name: Run Tests
         env:
           GITHUB_REPOSITORY_OWNER_LOWER: superson7
           COMPOSE_PROJECT_NAME: h-art-archive
@@ -89,8 +89,8 @@ jobs:
             --abort-on-container-exit \
             --exit-code-from web
 
-      - name: Show Postgres logs
-        if: always()  # 실패해도 실행
+      - name: Show compose service states
+        if: always()
         env:
           GITHUB_REPOSITORY_OWNER_LOWER: superson7
           COMPOSE_PROJECT_NAME: h-art-archive
@@ -99,7 +99,45 @@ jobs:
           docker compose \
             -f docker-compose.test.yml \
             -f docker-compose.ci.yml \
-            logs --tail=200 test_db
+            ps -a
+
+      - name: Show concise logs (tail + since, grouped)
+        if: always()
+        env:
+          GITHUB_REPOSITORY_OWNER_LOWER: superson7
+          COMPOSE_PROJECT_NAME: h-art-archive
+          IMAGE_TAG: ${{ github.sha }}
+          LOG_SINCE: 20m         # 최근 20분만 보기 (원하면 조절)
+          LOG_TAIL: "300"        # 서비스별 마지막 300줄만
+        run: |
+          for s in test_db web redis localstack celery; do
+            echo "::group::logs:$s"
+            docker compose \
+              -f docker-compose.test.yml \
+              -f docker-compose.ci.yml \
+              logs \
+              --since="${LOG_SINCE}" \
+              --tail="${LOG_TAIL}" \
+              --timestamps \
+              --no-log-prefix \
+              --no-color \
+              "$s" || true
+            echo "::endgroup::"
+          done
+
+      - name: Postgres error summary (quick grep)
+        if: always()
+        env:
+          GITHUB_REPOSITORY_OWNER_LOWER: superson7
+          COMPOSE_PROJECT_NAME: h-art-archive
+          IMAGE_TAG: ${{ github.sha }}
+          LOG_SINCE: 20m
+        run: |
+          docker compose \
+            -f docker-compose.test.yml \
+            -f docker-compose.ci.yml \
+            logs --since="${LOG_SINCE}" --no-color test_db \
+          | grep -En "FATAL|PANIC|ERROR|database system is (starting up|shutting down)|password authentication failed" || true
 
 
 # 프론트엔드 테스트
