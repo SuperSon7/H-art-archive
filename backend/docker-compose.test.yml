@@ -16,7 +16,7 @@ services:
       - DJANGO_SETTINGS_MODULE=config.settings.test
       - PYTEST_MARKEXPR=${PYTEST_MARKEXPR:-}
     env_file:
-      - .env.test
+      - .env
     command: >
       sh -c '
         python manage.py runserver 0.0.0.0:8080 &
@@ -33,7 +33,7 @@ services:
     volumes:
       - test_postgre_data:/var/lib/postgresql/data
     env_file:
-      - .env.test
+      - .env
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
