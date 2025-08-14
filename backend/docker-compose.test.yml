@@ -16,12 +16,14 @@ services:
       - DJANGO_SETTINGS_MODULE=config.settings.test
       - PYTEST_MARKEXPR=${PYTEST_MARKEXPR:-}
       - COVERAGE_FILE=/tmp/.coverage
+      - DATABASE_HOST=test_db
+      - DATABASE_PORT=5432
     env_file:
       - .env
     command: >
       sh -c '
         python manage.py runserver 0.0.0.0:8080 &
-        PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTEST_ADDOPTS="" pytest -p pytest_django ${PYTEST_MARKEXPR:+-m "$PYTEST_MARKEXPR"}
+        pytest -q ${PYTEST_MARKEXPR:+-m "$PYTEST_MARKEXPR"}
       '
   test_db:
     image: postgres:15
