@@ -20,7 +20,7 @@ services:
     command: >
       sh -c '
         python manage.py runserver 0.0.0.0:8080 &
-        pytest -q -o addopts="" -p no:pytest_cov ${PYTEST_MARKEXPR:+-m "$PYTEST_MARKEXPR"}
+        PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTEST_ADDOPTS="" pytest -p pytest_django ${PYTEST_MARKEXPR:+-m "$PYTEST_MARKEXPR"}
       '
   test_db:
     image: postgres:15
