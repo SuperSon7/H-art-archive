@@ -41,7 +41,7 @@ class TestUserInfoViewSet:
         response = authenticated_client.get(url)
         assert response.status_code == status.HTTP_404_NOT_FOUND
 
-    @patch("apps.utils.s3_presigner.generate_presigned_url")
+    @patch("apps.utils.s3_presigner.create_presigned_url")
     def test_generate_profile_image_url(self, mock_generate_url, authenticated_client, user):
         """프로필 이미지 업로드 URL 생성 테스트"""
         mock_generate_url.return_value = (
@@ -49,7 +49,7 @@ class TestUserInfoViewSet:
             "user_uploads/1/test.jpg",
         )
 
-        url = reverse("user-generate-profile-image-url", kwargs={"pk": user.id})
+        url = reverse("user-profile-image", kwargs={"pk": user.id})
         data = {"filename": "test.jpg", "content_type": "image/jpeg"}
         response = authenticated_client.post(url, data)
         assert response.status_code == status.HTTP_200_OK
@@ -58,7 +58,7 @@ class TestUserInfoViewSet:
 
     def test_save_profile_image(self, authenticated_client, user):
         """프로필 이미지 저장 테스트"""
-        url = reverse("user-save-profile-image", kwargs={"pk": user.id})
+        url = reverse("user-profile-image-save", kwargs={"pk": user.id})
         data = {"key": f"user_uploads/{user.id}/test.jpg"}
         response = authenticated_client.post(url, data)
         assert response.status_code == status.HTTP_200_OK
@@ -67,7 +67,7 @@ class TestUserInfoViewSet:
 
     def test_save_profile_image_invalid_key(self, authenticated_client, user):
         """잘못된 S3 키로 프로필 이미지 저장 시도 테스트"""
-        url = reverse("user-save-profile-image", kwargs={"pk": user.id})
+        url = reverse("user-profile-image-save", kwargs={"pk": user.id})
         data = {"key": "user_uploads/999/test.jpg"}  # 다른 사용자 경로
         response = authenticated_client.post(url, data)
         assert response.status_code == status.HTTP_400_BAD_REQUEST

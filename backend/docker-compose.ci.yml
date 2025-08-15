@@ -1,0 +1,22 @@
+services:
+  web:
+    # 💡 CI에서 빌드될 이미지의 최종 이름과 태그
+    image: ghcr.io/${GITHUB_REPOSITORY_OWNER_LOWER}/${COMPOSE_PROJECT_NAME}-web:${IMAGE_TAG:-latest}
+    build:
+      # 💡 레지스트리 캐시 설정
+      cache_from:
+        - type=registry,ref=ghcr.io/${GITHUB_REPOSITORY_OWNER_LOWER}/${COMPOSE_PROJECT_NAME}-web-cache:latest
+      cache_to:
+        - type=registry,ref=ghcr.io/${GITHUB_REPOSITORY_OWNER_LOWER}/${COMPOSE_PROJECT_NAME}-web-cache:latest,mode=max
+    # 💡 CI 환경에서 실행할 테스트 명령어
+    command: pytest -q ${PYTEST_MARKEXPR:+-m "$PYTEST_MARKEXPR"}
+
+  celery:
+    image: ghcr.io/${GITHUB_REPOSITORY_OWNER_LOWER}/${COMPOSE_PROJECT_NAME}-celery:${IMAGE_TAG:-latest}
+    build:
+      cache_from:
+        - type=registry,ref=ghcr.io/${GITHUB_REPOSITORY_OWNER_LOWER}/${COMPOSE_PROJECT_NAME}-celery-cache:latest
+      cache_to:
+        - type=registry,ref=ghcr.io/${GITHUB_REPOSITORY_OWNER_LOWER}/${COMPOSE_PROJECT_NAME}-celery-cache:latest,mode=max
+    # CI에서는 Celery를 실행할 필요가 없으므로 command를 비워둡니다.
+    command: tail -f /dev/null

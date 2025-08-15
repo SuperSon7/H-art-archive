@@ -224,7 +224,7 @@ AWS_S3_BUCKET_NAME = os.environ.get("AWS_S3_BUCKET_NAME")
 AWS_S3_ARTWORK_BUCKET = os.environ.get("AWS_S3_ARTWORK_BUCKET")
 AWS_S3_PROFILE_BUCKET = os.environ.get("AWS_S3_PROFILE_BUCKET")
 
-AWS_ENDPOINT = (os.environ.get("AWS_ENDPOINT"),)  # LocalStack!
+AWS_ENDPOINT = os.environ.get("AWS_ENDPOINT")  # LocalStack!
 AWS_PRESIGNED_EXPIRES = int(os.getenv("AWS_PRESIGNED_EXPIRES", "600"))
 
 # GOOGLE

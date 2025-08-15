@@ -5,13 +5,13 @@ import pytest
 from moto import mock_aws
 
 from apps.accounts.oauth import login_with_social
-from apps.utils.s3_presigner import generate_presigned_url
+from apps.utils.s3_presigner import create_presigned_url
 
 
 @pytest.mark.unit
 class TestGeneratePresignedUrl:
     @mock_aws
-    def test_generate_presigned_url_success(self):
+    def test_create_presigned_url_success(self):
         """S3 presigned URL 생성 성공 테스트"""
         # Mock S3 bucket 생성
         s3 = boto3.client("s3", region_name="us-east-1")
@@ -21,22 +21,24 @@ class TestGeneratePresignedUrl:
             patch("django.conf.settings.AWS_S3_PROFILE_BUCKET", "test-bucket"),
             patch("django.conf.settings.AWS_REGION", "us-east-1"),
         ):
-            url, key = generate_presigned_url(
-                user_id=1, filename="test.jpg", content_type="image/jpeg"
+            url, key = create_presigned_url(
+                bucket="test-bucket", key="user_uploads/1/test.jpg", content_type="image/jpeg"
             )
 
             assert url is not None
             assert key == "user_uploads/1/test.jpg"
 
-    @patch("boto3.client")
-    def test_generate_presigned_url_failure(self, mock_boto3):
+    @patch("apps.utils.s3_presigner.get_s3_client")
+    def test_create_presigned_url_failure(self, mock_boto3):
         """S3 presigned URL 생성 실패 테스트"""
         mock_client = Mock()
         mock_client.generate_presigned_url.side_effect = Exception("S3 error")
         mock_boto3.return_value = mock_client
 
         with pytest.raises(Exception):
-            generate_presigned_url(1, "test.jpg", "image/jpeg")
+            create_presigned_url(
+                bucket="test-bucket", key="user_uploads/1/test.jpg", content_type="image/jpeg"
+            )
 
 
 @pytest.mark.unit
