@@ -9,3 +9,6 @@ up-prod:
 
 down-test:
 	docker compose -f docker-compose.test.yml -p test down -v
+
+exec-dev:
+	docker exec -it backend-web-1 bash
