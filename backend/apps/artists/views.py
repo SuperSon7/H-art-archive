@@ -85,6 +85,7 @@ class ArtistProfileViewSet(viewsets.ModelViewSet):
     #     artist.save(update_fields=["main_image_url"])
     #     return Response({"detail": "Main image selected successfully."})
 
+    # TODO: mixin 활용 로직 검토
     @action(
         detail=False,
         methods=["post"],
