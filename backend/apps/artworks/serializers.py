@@ -8,7 +8,7 @@ from .models import Artwork
 class ArtworkListSerializer(TranslatableModelSerializer):
     title = serializers.SerializerMethodField()
     artist_name = serializers.SerializerMethodField()
-    main_image_url = serializers.SerializerMethodField()
+    thumbnail_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Artwork
@@ -18,8 +18,9 @@ class ArtworkListSerializer(TranslatableModelSerializer):
             "price_krw",
             "price_usd",
             "artist_name",
-            "main_image_url",
-            "status",
+            "thumbnail_url",
+            "sale_status",
+            "display_status",
             "like_count",
             "view_count",
             "is_featured",
@@ -40,9 +41,14 @@ class ArtworkListSerializer(TranslatableModelSerializer):
             return getter("artist_name", any_language=True)
         return getattr(obj.artist, "name", None)
 
+    # TODO: 썸네일 이미지 추가 필요
+    # def get_thumbnail_url(self, obj):
+    #     return obj.primary_image.image.url
+
 
 class ArtworkDetailSerializer(TranslatableModelSerializer):
     translations = TranslatedFieldsField(shared_model=Artwork)
+    artist_name = serializers.SerializerMethodField()
 
     class Meta:
         model = Artwork
@@ -62,16 +68,18 @@ class ArtworkDetailSerializer(TranslatableModelSerializer):
             "view_count",
             "like_count",
             "is_featured",
+            "artist_name",
         ]
         read_only_fields = [
             "id",
             "view_count",
             "like_count",
             "is_featured",
+            "artist_name",
         ]
 
 
-class ArtworkSerializer(TranslatableModelSerializer):
+class MyArtworkSerializer(TranslatableModelSerializer):
     translations = TranslatedFieldsField(shared_model=Artwork)
 
     class Meta:
