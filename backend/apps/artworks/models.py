@@ -89,17 +89,6 @@ class Artwork(TranslatableModel):
 
     category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, verbose_name="카테고리")
 
-    # class Visibility(models.TextChoices):
-    #     PUBLIC = 'PUBLIC', '공개'
-    #     HIDDEN = 'HIDDEN', '비공개'
-
-    # visibility = models.CharField(
-    #     max_length=20,
-    #     choices=Visibility.choices,
-    #     default='PUBLIC',
-    #     verbose_name="공개 여부"
-    # )
-
     class SaleStatus(models.TextChoices):
         AVAILABLE = "available", "판매중"
         SOLD = "sold", "판매완료"
