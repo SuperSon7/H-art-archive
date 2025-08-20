@@ -37,3 +37,19 @@ class S3ImageUploadSerializer(serializers.Serializer):
         attrs["ext"] = file_ext
 
         return attrs
+
+
+class ArtworkImageBatchSerializer(serializers.Serializer):
+    files = S3ImageUploadSerializer(many=True, max_length=10)
+
+
+class ConfirmItemIn(serializers.Serializer):
+    key = serializers.CharField()
+    caption = serializers.CharField(required=False, allow_blank=True)
+    order = serializers.IntegerField(required=False, default=0)
+
+
+class ConfirmBatchIn(serializers.Serializer):
+    upload_id = serializers.CharField()
+    items = ConfirmItemIn(many=True)
+    set_cover_from = serializers.IntegerField(required=False)

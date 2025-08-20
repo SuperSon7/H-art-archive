@@ -8,7 +8,7 @@ from .models import Artwork
 class ArtworkListSerializer(TranslatableModelSerializer):
     title = serializers.SerializerMethodField()
     artist_name = serializers.SerializerMethodField()
-    thumbnail_url = serializers.SerializerMethodField()
+    # thumbnail_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Artwork
@@ -18,7 +18,6 @@ class ArtworkListSerializer(TranslatableModelSerializer):
             "price_krw",
             "price_usd",
             "artist_name",
-            "thumbnail_url",
             "sale_status",
             "display_status",
             "like_count",
@@ -32,10 +31,10 @@ class ArtworkListSerializer(TranslatableModelSerializer):
             "is_featured",
         ]
 
-    def get_title(self, obj):
+    def get_title(self, obj) -> str:
         return obj.safe_translation_getter("title", any_language=True)
 
-    def get_artist_name(self, obj):
+    def get_artist_name(self, obj) -> str:
         getter = getattr(obj.artist, "safe_translation_getter", None)
         if callable(getter):
             return getter("artist_name", any_language=True)
@@ -48,7 +47,19 @@ class ArtworkListSerializer(TranslatableModelSerializer):
 
 class ArtworkDetailSerializer(TranslatableModelSerializer):
     translations = TranslatedFieldsField(shared_model=Artwork)
-    artist_name = serializers.SerializerMethodField()
+    # artist_name = serializers.SerializerMethodField()
+
+    # images = serializers.SerializerMethodField()
+
+    # def get_images(self, obj) -> list[dict]:
+    #     return [
+    #         {
+    #             'url': img.url,
+    #             'alt_text': img.alt_text,
+    #             'order': img.order
+    #         }
+    #         for img in obj.images.all().order_by('order')
+    #     ]
 
     class Meta:
         model = Artwork
@@ -68,14 +79,14 @@ class ArtworkDetailSerializer(TranslatableModelSerializer):
             "view_count",
             "like_count",
             "is_featured",
-            "artist_name",
+            # "artist_name",
         ]
         read_only_fields = [
             "id",
             "view_count",
             "like_count",
             "is_featured",
-            "artist_name",
+            # "artist_name",
         ]
 
 
@@ -96,7 +107,7 @@ class MyArtworkSerializer(TranslatableModelSerializer):
             "depth",
             "dimension_unit",
             "category",
-            "status",
+            "sale_status",
             "copyright_agreed",
             "license_agreed",
             "view_count",
@@ -140,7 +151,7 @@ class ArtworkAdminSerializer(TranslatableModelSerializer):
             "depth",
             "dimension_unit",
             "category",
-            "status",
+            "sale_status",
             "copyright_agreed",
             "license_agreed",
             "view_count",
