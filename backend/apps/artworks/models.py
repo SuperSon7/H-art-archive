@@ -11,7 +11,7 @@ def get_current_year():
 
 
 class Artwork(TranslatableModel):
-    translation = TranslatedFields(
+    translations = TranslatedFields(
         title=models.CharField(max_length=150, db_index=True, help_text="작품명"),
         description=models.TextField(
             blank=True, verbose_name="작품 설명", help_text="작품에 대한 상세 설명"
@@ -22,13 +22,23 @@ class Artwork(TranslatableModel):
         Artist, on_delete=models.CASCADE, related_name="artworks", verbose_name="작가"
     )
 
+    cover_image = models.ForeignKey(
+        "ArtworkImage",
+        on_delete=models.SET_NULL,
+        related_name="+",
+        null=True,
+        blank=True,
+        verbose_name="대표 이미지",
+        help_text="작품의 대표 이미지",
+    )
+
     # tags = models.ManyToManyField(Tag, blank=True, related_name='artworks', verbose_name="해시태그")
 
     year_created = models.IntegerField(
         validators=[
             MinValueValidator(1900),
             MaxValueValidator(
-                limit_value=get_current_year, message="제작 연도는 현재 연도보다 클 수 없습니다."
+                limit_value=get_current_year(), message="제작 연도는 현재 연도보다 클 수 없습니다."
             ),
         ],
         verbose_name="제작년도",
@@ -99,6 +109,11 @@ class Artwork(TranslatableModel):
         PUBLIC = "public", "공개"
         HIDDEN = "hidden", "비공개"
 
+    class ApprovalStatus(models.TextChoices):
+        PENDING = "pending", "승인대기"
+        APPROVED = "approved", "승인"
+        REJECTED = "rejected", "거절"
+
     sale_status = models.CharField(
         max_length=20,
         choices=SaleStatus.choices,
@@ -113,6 +128,14 @@ class Artwork(TranslatableModel):
         default="public",
         db_index=True,
         verbose_name="공개 여부",
+    )
+
+    approval_status = models.CharField(
+        max_length=20,
+        choices=ApprovalStatus.choices,
+        default=ApprovalStatus.PENDING,
+        db_index=True,
+        verbose_name="승인 상태",
     )
 
     copyright_agreed = models.BooleanField(
@@ -144,11 +167,6 @@ class Artwork(TranslatableModel):
         return f"{self.safe_translation_getter('title', any_language=True)} by {self.artist.name}"
 
     @property
-    def primary_image(self):
-        """대표 이미지 반환"""
-        return self.images.filter(is_primary=True).first()
-
-    @property
     def dimensions_display(self):
         """크기 표시용 프로퍼티"""
         if self.depth:
@@ -176,9 +194,8 @@ class ArtworkImage(models.Model):
         Artwork, on_delete=models.CASCADE, related_name="images", verbose_name="작품"
     )
 
-    image = models.ImageField(upload_to="artworks/%Y/%m/", verbose_name="이미지")
-
-    is_primary = models.BooleanField(default=False, verbose_name="대표 이미지")
+    url = models.URLField(blank=True, null=True, verbose_name="이미지 URL")
+    key = models.CharField(blank=True, null=True, verbose_name="이미지 키")
 
     order = models.PositiveIntegerField(default=0, verbose_name="정렬 순서")
 
@@ -195,13 +212,6 @@ class ArtworkImage(models.Model):
         verbose_name = "작품 이미지"
         verbose_name_plural = "작품 이미지들"
         ordering = ["order", "id"]
-        constraints = [
-            models.UniqueConstraint(
-                fields=["artwork"],
-                condition=models.Q(is_primary=True),
-                name="unique_primary_image_per_artwork",
-            )
-        ]
 
     def __str__(self):
         return f"{self.artwork.safe_translation_getter('title', any_language=True)} - Image {self.order}"
@@ -211,3 +221,5 @@ class ArtworkImage(models.Model):
 
     def has_pending_inquiries(self):
         return self.purchase_inquiries.filter(status="pending").exists()
+
+    # TODO: thumnnail 관련 속성 추가 필요
