@@ -48,14 +48,15 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "apps.accounts",
-    "apps.artworks",
     "apps.artists",
+    "apps.artworks",
     "apps.ai_integration",
     "apps.interactions",
     "rest_framework",
     "drf_spectacular",
     "corsheaders",
     "parler",
+    "django_filters",
 ]
 
 MIDDLEWARE = [
@@ -171,6 +172,8 @@ REST_FRAMEWORK = {
         "apps.accounts.authentication.JWTAuthentication",
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ],
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
+    "PAGE_SIZE": 20,
 }
 
 SPECTACULAR_SETTINGS = {
@@ -178,6 +181,7 @@ SPECTACULAR_SETTINGS = {
     "DESCRIPTION": "홍익대학교 졸업 작품 아카이빙 플랫폼",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
+    "SWAGGER_UI_SETTINGS": {"filter": True},
 }
 
 # Email Verification Config
@@ -223,7 +227,7 @@ AWS_REGION = os.environ.get("AWS_REGION", "ap-northeast-2")
 AWS_S3_BUCKET_NAME = os.environ.get("AWS_S3_BUCKET_NAME")
 AWS_S3_ARTWORK_BUCKET = os.environ.get("AWS_S3_ARTWORK_BUCKET")
 AWS_S3_PROFILE_BUCKET = os.environ.get("AWS_S3_PROFILE_BUCKET")
-
+AWS_S3_MAX_FILE_SIZE = int(os.environ.get("AWS_S3_MAX_FILE_SIZE", "10485760"))  # 10MB
 AWS_ENDPOINT = os.environ.get("AWS_ENDPOINT")  # LocalStack!
 AWS_PRESIGNED_EXPIRES = int(os.getenv("AWS_PRESIGNED_EXPIRES", "600"))
 
