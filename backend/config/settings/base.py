@@ -70,7 +70,9 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
+# TODO: 프로덕션 단계에서 변경 필수
 CORS_ALLOW_ALL_ORIGINS = True
+
 ROOT_URLCONF = "config.urls"
 
 TEMPLATES = [
