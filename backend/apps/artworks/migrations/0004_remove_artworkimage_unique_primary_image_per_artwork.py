@@ -9,8 +9,9 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveConstraint(
-            model_name="artworkimage",
-            name="unique_primary_image_per_artwork",
+        migrations.RunSQL(
+            # Postgres: 부분 유니크는 인덱스로 구현됨
+            sql="DROP INDEX IF EXISTS unique_primary_image_per_artwork;",
+            reverse_sql="-- no-op",
         ),
     ]
