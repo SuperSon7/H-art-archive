@@ -65,11 +65,23 @@ class Artwork(TranslatableModel):
 
     materials = models.TextField(verbose_name="재료", help_text="예: 캔버스에 아크릴, 브론즈 등")
 
-    width = models.FloatField(verbose_name="가로(cm)", validators=[MinValueValidator(0.1)])
+    width = models.DecimalField(
+        max_digits=6,
+        decimal_places=2,
+        verbose_name="가로(cm)",
+        validators=[MinValueValidator(0.1)],
+    )
 
-    height = models.FloatField(verbose_name="세로(cm)", validators=[MinValueValidator(0.1)])
+    height = models.DecimalField(
+        max_digits=6,
+        decimal_places=2,
+        verbose_name="세로(cm)",
+        validators=[MinValueValidator(0.1)],
+    )
 
-    depth = models.FloatField(
+    depth = models.DecimalField(
+        max_digits=6,
+        decimal_places=2,
         null=True,
         blank=True,
         verbose_name="깊이(cm)",
