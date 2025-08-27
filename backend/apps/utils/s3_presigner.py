@@ -8,7 +8,6 @@ from .s3_client import get_s3_client
 logger = logging.getLogger(__name__)
 
 
-# TODO: Mixin 활용 고려
 def s3_key_for_upload(category: str, object_id: int, ext: str, subdir: str | None = None) -> str:
     """Generate an S3 key for a given category/object."""
     filename = f"{uuid4().hex}{ext}"
