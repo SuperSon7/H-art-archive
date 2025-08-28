@@ -85,6 +85,7 @@ class ArtistProfileViewSet(viewsets.ModelViewSet):
     #     artist.save(update_fields=["main_image_url"])
     #     return Response({"detail": "Main image selected successfully."})
 
+    # TODO: mixin 활용 로직 검토
     @action(
         detail=False,
         methods=["post"],
@@ -142,6 +143,7 @@ class ArtistProfileViewSet(viewsets.ModelViewSet):
 
         return Response({"upload_url": url, "s3_key": key})
 
+    # TODO: 키 저장 방식으로 변경, HeadObject 활용 필요
     @action(detail=False, methods=["post"], url_path="me/main-image", url_name="main-image")
     def save_main_image(self, request, pk=None) -> Response:
         """
@@ -156,6 +158,8 @@ class ArtistProfileViewSet(viewsets.ModelViewSet):
         expected_prefix = f"profiles/{artist.user.id}/artist_main/"
         if not key.startswith(expected_prefix):
             raise ValidationError("Invalid S3 key")
+
+        # TODO: 실제 업로드 여부 확인 필요
 
         url = request.data.get("url")
 
