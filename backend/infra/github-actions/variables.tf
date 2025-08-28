@@ -4,9 +4,7 @@ variable "project" {
 }
 
 variable "environment" {
-  description = "Environment name (dev|stage|prod)."
-  type        = string
-  default     = "dev"
+  default = "dev"
 }
 
 variable "create_oidc_provider" {
@@ -31,51 +29,26 @@ variable "create_oidc_role" {
 # This is specified as a variable to allow it to be updated quickly if it is
 # unexpectedly changed by GitHub.
 # See: https://github.blog/changelog/2023-06-27-github-actions-update-on-oidc-integration-with-aws/
-variable "github_thumbprints" {
-  description = "GitHub OpenID TLS certificate thumbprints."
-  type        = list(string)
-  default     = [
-    "6938fd4d98bab03faadb97b34396831e3780aea1",
-    "1c58a3a8518e8759bf075b76b750d4f2df264fcd"
-  ]
+variable "github_thumbprint" {
+  description = "GitHub OpenID TLS certificate thumbprint."
+  type        = string
+  default     = "6938fd4d98bab03faadb97b34396831e3780aea1"
 }
 
-# repo slash format
-# Ensures each element of github_repositories list matches the
-# organization/repository format used by GitHub.
 variable "repositories" {
   description = "List of GitHub organization/repository names authorized to assume the role."
   type        = list(string)
   default     = []
 
   validation {
+    # Ensures each element of github_repositories list matches the
+    # organization/repository format used by GitHub.
     condition = length([
       for repo in var.repositories : 1
       if length(regexall("^[A-Za-z0-9_.-]+?/([A-Za-z0-9_.:/-]+|\\*)$", repo)) > 0
     ]) == length(var.repositories)
     error_message = "Repositories must be specified in the organization/repository format."
   }
-}
-
-# audience
-variable "oidc_audience" {
-  description = "Expected OIDC audience claim for GitHub->AWS."
-  type        = string
-  default     = "sts.amazonaws.com"
-}
-
-# refs inventory(branch/tag). default: master only
-variable "allowed_refs" {
-  description = "List of fully-qualified Git refs (e.g., refs/heads/master, refs/tags/v*)."
-  type        = list(string)
-  default     = ["refs/heads/master"]
-}
-
-# special case(PR etc.) override sub
-variable "allowed_subs_override" {
-  description = "Explicit list of allowed 'sub' claim values. If non-empty, it overrides repositories×allowed_refs."
-  type        = list(string)
-  default     = []
 }
 
 variable "max_session_duration" {
@@ -95,6 +68,12 @@ variable "oidc_role_attach_policies" {
   default     = []
 }
 
+variable "tags" {
+  description = "A mapping of tags to assign to all resources"
+  type        = map(string)
+  default     = {}
+}
+
 variable "role_name" {
   description = "(Optional, Forces new resource) Friendly name of the role."
   type        = string
@@ -105,10 +84,4 @@ variable "role_description" {
   description = "(Optional) Description of the role."
   type        = string
   default     = "Role assumed by the GitHub OIDC provider."
-}
-
-variable "tags" {
-  description = "A mapping of tags to assign to all resources"
-  type        = map(string)
-  default     = {}
 }

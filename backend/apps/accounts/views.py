@@ -40,8 +40,6 @@ User = get_user_model()
 
 
 class SignUpView(APIView):
-    serializer_class = SignUpSerializer
-
     def post(self, request):
         serializer = SignUpSerializer(data=request.data)
 
@@ -60,8 +58,6 @@ class SignUpView(APIView):
 
 class SendVerificationEmailView(APIView):
     """Sending Veryfication Email for Singup"""
-
-    serializer_class = SendVerificationEmailSerializer
 
     def post(self, request: Request) -> Response:
         serializer = SendVerificationEmailSerializer(data=request.data)
@@ -88,8 +84,6 @@ class SendVerificationEmailView(APIView):
 
 
 class VerifyEmailView(APIView):
-    serializer_class = VerifyEmailSerializer
-
     def post(self, request):
         serializer = VerifyEmailSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -119,8 +113,6 @@ class LoginView(APIView):
     Methods:
       post : Login
     """
-
-    serializer_class = LoginSerializer
 
     def post(self, request: Request) -> Response:
         """Login user with email and password.
@@ -325,8 +317,6 @@ class UserInfoViewSet(viewsets.ViewSet):
 
 class SocialLoginView(APIView):
     """Social Login API endpoint for user authentication."""
-
-    serializer_class = SocialLoginSerializer
 
     def post(self, request: Request) -> Response:
         """Social login with provider code and redirect URI
